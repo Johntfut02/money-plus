@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Money+ — a responsive personal finance tracker." />
+    <title>Transactions | Money+</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/i18n.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body data-page="transactions">
+    <aside class="sidebar">
+      <a class="brand" href="index.html"
+        ><span class="coin">M↗</span
+        ><span
+          >Money<span class="gold">+</span
+          ><small><span data-i18n="PERSONAL FINANCE">PERSONAL FINANCE</span></small></span
+        ></a
+      >
+      <nav aria-label="Main navigation" data-i18n-aria-label="Main navigation">
+        <a href="index.html" class=""
+          ><i data-icon="home"></i><span data-i18n="Dashboard">Dashboard</span></a
+        ><a href="transactions.html" class="active"
+          ><i data-icon="receipt"></i><span data-i18n="Transactions">Transactions</span></a
+        ><a href="budget.html" class=""
+          ><i data-icon="wallet"></i><span data-i18n="Budgets">Budgets</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="calendar"></i
+          ><span data-i18n="Bills &amp; Recurring">Bills &amp; Recurring</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="flag"></i><span data-i18n="Goals">Goals</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="card"></i><span data-i18n="Cards">Cards</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="trend"></i><span data-i18n="Insights">Insights</span></a
+        >
+      </nav>
+      <button class="settings" data-soon>
+        <i data-icon="settings"></i><span data-i18n="Settings">Settings</span>
+      </button>
+    </aside>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="mobile-brand brand" href="index.html"
+          ><span class="coin">M↗</span
+          ><span
+            >Money+<small class="gold"
+              ><span data-i18n="TRANSACTIONS">TRANSACTIONS</span></small
+            ></span
+          ></a
+        ><a class="top-search" href="transactions.html"
+          ><i data-icon="search"></i
+          ><span data-i18n="Search transactions, budgets, cards..."
+            >Search transactions, budgets, cards...</span
+          ></a
+        >
+        <div class="top-actions">
+          <select class="language-control" aria-label="Language / Idioma">
+            <option value="pt">PT</option>
+            <option value="en">EN</option></select
+          ><select
+            class="month-control desktop-month"
+            aria-label="Select month"
+            data-i18n-aria-label="Select month"
+          ></select
+          ><button
+            class="notification"
+            data-soon
+            aria-label="Notifications"
+            data-i18n-aria-label="Notifications"
+          >
+            <i data-icon="bell"></i><span></span></button
+          ><a class="button primary top-add" href="add-transaction.html"
+            ><i data-icon="plus"></i><span data-i18n="Add Transaction">Add Transaction</span></a
+          ><span class="avatar">JP</span><strong class="user-name">João M.</strong>
+        </div>
+      </header>
+      <main>
+        <section class="page-heading">
+          <div>
+            <h1><span data-i18n="Transactions">Transactions</span></h1>
+            <p class="eyebrow gold">
+              <span class="selected-month"></span> · <span data-transaction-count></span>
+              <span data-i18n="TOTAL">TOTAL</span>
+            </p>
+          </div>
+          <a class="button primary" href="add-transaction.html"
+            ><i data-icon="plus"></i><span data-i18n="Add">Add</span></a
+          >
+        </section>
+        <div class="transaction-controls">
+          <label class="search-box"
+            ><i data-icon="search"></i
+            ><input
+              id="search"
+              type="search"
+              placeholder="Search transactions, notes, payees..."
+              aria-label="Search transactions"
+              data-i18n-placeholder="Search transactions, notes, payees..."
+              data-i18n-aria-label="Search transactions"
+          /></label>
+          <div
+            class="filters"
+            aria-label="Transaction type"
+            data-i18n-aria-label="Transaction type"
+          >
+            <button class="active" data-filter="all"><span data-i18n="● All">● All</span></button
+            ><button data-filter="expense">
+              <span data-i18n="Expenses">Expenses</span> <i data-icon="down"></i></button
+            ><button data-filter="income">
+              <span data-i18n="Income">Income</span> <i data-icon="up"></i></button
+            ><select
+              class="month-control"
+              aria-label="Transaction month"
+              data-i18n-aria-label="Transaction month"
+            ></select>
+          </div>
+        </div>
+        <section class="card flow-summary">
+          <div class="section-heading">
+            <h2 class="eyebrow">
+              <span data-i18n="MONTHLY FLOW CADENCE">MONTHLY FLOW CADENCE</span>
+            </h2>
+            <span class="badge" data-flow-status></span>
+          </div>
+          <div class="flow-values">
+            <div>
+              <span><span data-i18n="↗ Inflow">↗ Inflow</span></span
+              ><strong class="positive" data-total="income"></strong>
+            </div>
+            <div>
+              <span><span data-i18n="↙ Outflow">↙ Outflow</span></span
+              ><strong class="negative" data-total="expenses"></strong>
+            </div>
+            <div>
+              <span class="gold"><span data-i18n="▣ Net Total">▣ Net Total</span></span
+              ><strong class="gold" data-total="savings"></strong>
+            </div>
+          </div>
+        </section>
+        <div id="transaction-list"></div>
+        <p class="muted centered" id="results-count"></p>
+        <button class="button secondary reset-demo" id="reset-demo">
+          <i data-icon="reset"></i><span data-i18n="Reset demo data">Reset demo data</span>
+        </button>
+        <footer class="page-footer desktop-only">
+          <span
+            ><span data-i18n="● Money+ · Personal Finance Tracker"
+              >● Money+ · Personal Finance Tracker</span
+            ></span
+          ><span>Money+ © 2026</span>
+        </footer>
+      </main>
+    </div>
+    <nav class="bottom-nav" aria-label="Mobile navigation" data-i18n-aria-label="Mobile navigation">
+      <a href="index.html" class=""
+        ><i data-icon="home"></i><span><span data-i18n="Home">Home</span></span></a
+      ><a href="transactions.html" class="active"
+        ><i data-icon="receipt"></i
+        ><span><span data-i18n="Transactions">Transactions</span></span></a
+      ><a href="budget.html" class=""
+        ><i data-icon="wallet"></i><span><span data-i18n="Budget">Budget</span></span></a
+      ><a href="#" class="" data-soon
+        ><i data-icon="flag"></i><span><span data-i18n="Goals">Goals</span></span></a
+      ><a href="#" class="" data-soon
+        ><i data-icon="grid"></i><span><span data-i18n="More">More</span></span></a
+      >
+    </nav>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Money+ — a responsive personal finance tracker." />
+    <title>Money+ | Personal Finance Tracker</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/i18n.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body data-page="index">
+    <aside class="sidebar">
+      <a class="brand" href="index.html"
+        ><span class="coin">M↗</span
+        ><span
+          >Money<span class="gold">+</span
+          ><small><span data-i18n="PERSONAL FINANCE">PERSONAL FINANCE</span></small></span
+        ></a
+      >
+      <nav aria-label="Main navigation" data-i18n-aria-label="Main navigation">
+        <a href="index.html" class="active"
+          ><i data-icon="home"></i><span data-i18n="Dashboard">Dashboard</span></a
+        ><a href="transactions.html" class=""
+          ><i data-icon="receipt"></i><span data-i18n="Transactions">Transactions</span></a
+        ><a href="budget.html" class=""
+          ><i data-icon="wallet"></i><span data-i18n="Budgets">Budgets</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="calendar"></i
+          ><span data-i18n="Bills &amp; Recurring">Bills &amp; Recurring</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="flag"></i><span data-i18n="Goals">Goals</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="card"></i><span data-i18n="Cards">Cards</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="trend"></i><span data-i18n="Insights">Insights</span></a
+        >
+      </nav>
+      <button class="settings" data-soon>
+        <i data-icon="settings"></i><span data-i18n="Settings">Settings</span>
+      </button>
+    </aside>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="mobile-brand brand" href="index.html"
+          ><span class="coin">M↗</span
+          ><span
+            >Money+<small class="gold"><span data-i18n="HOME">HOME</span></small></span
+          ></a
+        ><a class="top-search" href="transactions.html"
+          ><i data-icon="search"></i
+          ><span data-i18n="Search transactions, budgets, cards..."
+            >Search transactions, budgets, cards...</span
+          ></a
+        >
+        <div class="top-actions">
+          <select class="language-control" aria-label="Language / Idioma">
+            <option value="pt">PT</option>
+            <option value="en">EN</option></select
+          ><select
+            class="month-control desktop-month"
+            aria-label="Select month"
+            data-i18n-aria-label="Select month"
+          ></select
+          ><button
+            class="notification"
+            data-soon
+            aria-label="Notifications"
+            data-i18n-aria-label="Notifications"
+          >
+            <i data-icon="bell"></i><span></span></button
+          ><a class="button primary top-add" href="add-transaction.html"
+            ><i data-icon="plus"></i><span data-i18n="Add Transaction">Add Transaction</span></a
+          ><span class="avatar">JP</span><strong class="user-name">João M.</strong>
+        </div>
+      </header>
+      <main>
+        <section class="page-heading">
+          <div>
+            <div class="eyebrow desktop-only">
+              <span class="updated"><span data-i18n="● UPDATED TODAY">● UPDATED TODAY</span></span>
+              · <span class="selected-month"></span>
+            </div>
+            <h1><span data-i18n="Good morning, João">Good morning, João</span></h1>
+            <p>
+              <span class="desktop-only"
+                ><span
+                  data-i18n="Here's your comprehensive financial overview and cash trajectory for September."
+                  >Here's your comprehensive financial overview and cash trajectory for
+                  September.</span
+                ></span
+              ><span class="mobile-only"
+                ><span data-i18n="Here's your financial overview."
+                  >Here's your financial overview.</span
+                ></span
+              >
+            </p>
+          </div>
+          <div class="heading-actions">
+            <select
+              class="month-control"
+              aria-label="Dashboard month"
+              data-i18n-aria-label="Dashboard month"
+            ></select
+            ><a class="button primary desktop-only" href="add-transaction.html"
+              ><i data-icon="plus"></i><span data-i18n="Add Transaction">Add Transaction</span></a
+            >
+          </div>
+        </section>
+        <section class="stats">
+          <article class="card balance-card">
+            <div class="stat-label">
+              <span data-i18n="AVAILABLE BALANCE">AVAILABLE BALANCE</span> <i data-icon="wallet"></i
+              ><span class="mobile-only updated"
+                ><span data-i18n="● Updated today">● Updated today</span></span
+              >
+            </div>
+            <h2 data-total="balance"></h2>
+            <p>
+              <span class="badge positive"
+                ><span data-i18n="Opening balance">Opening balance</span></span
+              >
+              <span>R$ 1.285,00</span>
+            </p>
+            <a class="button primary mobile-only" href="add-transaction.html"
+              ><i data-icon="plus"></i><span data-i18n="Add Transaction">Add Transaction</span></a
+            >
+          </article>
+          <div class="quick-actions mobile-only">
+            <a href="add-transaction.html?type=income"
+              ><i data-icon="down"></i><span data-i18n="+ Income">+ Income</span></a
+            ><a href="add-transaction.html?type=expense"
+              ><i data-icon="up"></i><span data-i18n="- Expense">- Expense</span></a
+            ><button data-soon>
+              <i data-icon="receipt"></i><span data-i18n="+ Bill">+ Bill</span></button
+            ><button data-soon>
+              <i data-icon="flag"></i><span data-i18n="+ Goal">+ Goal</span>
+            </button>
+          </div>
+          <article class="card income-card">
+            <div class="stat-label">
+              <span data-i18n="MONTHLY INCOME">MONTHLY INCOME</span
+              ><i class="positive" data-icon="down"></i>
+            </div>
+            <h2 data-total="income"></h2>
+            <p class="positive">
+              <span data-deposits></span> <span data-i18n="deposits">deposits</span>
+              <span class="desktop-only muted">
+                <span data-i18n="· This month">· This month</span></span
+              >
+            </p>
+          </article>
+          <article class="card expense-card">
+            <div class="stat-label">
+              <span data-i18n="MONTHLY EXPENSES">MONTHLY EXPENSES</span
+              ><i class="negative" data-icon="up"></i>
+            </div>
+            <h2 data-total="expenses"></h2>
+            <p class="negative" data-usage></p>
+          </article>
+          <article class="card savings-card">
+            <div class="stat-label">
+              <span data-i18n="NET SAVINGS">NET SAVINGS</span><i data-icon="pig"></i>
+            </div>
+            <h2 data-total="savings"></h2>
+            <p class="gold" data-rate></p>
+          </article>
+        </section>
+        <div class="overview-grid">
+          <section class="card cash-card">
+            <div class="section-heading">
+              <div>
+                <h2><span data-i18n="Cash Flow Analysis">Cash Flow Analysis</span></h2>
+                <p>
+                  <span data-i18n="Income vs. expenditures over past periods"
+                    >Income vs. expenditures over past periods</span
+                  >
+                </p>
+              </div>
+              <div class="chart-tabs" aria-label="Chart period" data-i18n-aria-label="Chart period">
+                <button data-period="1">1M</button><button data-period="3">3M</button
+                ><button data-period="6" class="active">6M</button
+                ><button data-period="12"><span data-i18n="1Y">1Y</span></button>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <span><b></b><span data-i18n="Income">Income</span></span
+              ><span><b></b><span data-i18n="Expenses">Expenses</span></span>
+            </div>
+            <div
+              id="cash-chart"
+              role="img"
+              aria-label="Monthly income and expenses"
+              data-i18n-aria-label="Monthly income and expenses"
+            ></div>
+          </section>
+          <section class="card category-card">
+            <div class="section-heading">
+              <h2><span data-i18n="Spending by Category">Spending by Category</span></h2>
+              <a class="mobile-only gold" href="budget.html"
+                ><span data-i18n="View All">View All</span></a
+              >
+            </div>
+            <div class="category-body">
+              <div class="donut">
+                <div>
+                  <small><span data-i18n="SPENT">SPENT</span></small
+                  ><strong data-total="donut"></strong><span data-category-count></span>
+                </div>
+              </div>
+              <div id="category-legend"></div>
+            </div>
+          </section>
+          <section class="card monthly-budget">
+            <div class="section-heading">
+              <h2>
+                <i data-icon="wallet"></i><span data-i18n="Monthly Budget">Monthly Budget</span>
+              </h2>
+              <a class="gold mobile-only" href="budget.html"
+                ><span data-i18n="View Budget">View Budget</span></a
+              ><span class="badge desktop-only" data-usage></span>
+            </div>
+            <p>
+              <strong data-total="expenses"></strong> <span data-i18n="spent">spent</span>
+              <span class="muted"
+                ><span data-i18n="of">of</span> <span data-budget-limit></span>
+                <span data-i18n="limit">limit</span></span
+              >
+            </p>
+            <div class="progress"><span data-budget-progress></span></div>
+            <div class="budget-foot">
+              <span class="gold" data-budget-status></span
+              ><span
+                ><span data-i18n="Remaining:">Remaining:</span> <strong data-remaining></strong
+              ></span>
+            </div>
+            <a class="button secondary desktop-only" href="budget.html"
+              ><i data-icon="settings"></i><span data-i18n="Manage Budget">Manage Budget</span></a
+            >
+          </section>
+          <section class="card insight-card">
+            <div class="insight-icon"><i data-icon="spark"></i></div>
+            <div>
+              <h2>
+                <span data-i18n="Money+ Insight">Money+ Insight</span>
+                <span class="badge positive"><span data-i18n="RULE BASED">RULE BASED</span></span>
+              </h2>
+              <div data-insights></div>
+              <a class="button secondary insight-link" href="budget.html"
+                ><span data-i18n="View Insights">View Insights</span></a
+              >
+            </div>
+          </section>
+        </div>
+        <div class="lower-grid">
+          <section class="card recent-card">
+            <div class="section-heading">
+              <div>
+                <h2><span data-i18n="Recent Transactions">Recent Transactions</span></h2>
+                <p class="desktop-only">
+                  <span data-i18n="Last 5 entries recorded this cycle"
+                    >Last 5 entries recorded this cycle</span
+                  >
+                </p>
+              </div>
+              <a class="gold" href="transactions.html"
+                ><span data-i18n="View All">View All</span></a
+              >
+            </div>
+            <div id="recent-transactions"></div>
+            <div class="muted recent-footer" data-recent-count></div>
+          </section>
+          <section class="card bills-card desktop-only">
+            <div class="section-heading">
+              <div>
+                <h2>
+                  <span data-i18n="Upcoming Payments &amp; Bills"
+                    >Upcoming Payments &amp; Bills</span
+                  >
+                </h2>
+                <p><span data-i18n="Preview · future feature">Preview · future feature</span></p>
+              </div>
+              <button
+                class="icon-button"
+                data-soon
+                aria-label="Add bill"
+                data-i18n-aria-label="Add bill"
+              >
+                <i data-icon="plus"></i>
+              </button>
+            </div>
+            <div class="bill">
+              <i data-icon="wifi"></i>
+              <div>
+                <strong><span data-i18n="Fiber Internet">Fiber Internet</span></strong
+                ><small
+                  ><span data-i18n="Utilities · Due Oct 28">Utilities · Due Oct 28</span></small
+                >
+              </div>
+              <div>
+                <strong>R$ 100,00</strong
+                ><small class="gold"><span data-i18n="UPCOMING">UPCOMING</span></small>
+              </div>
+            </div>
+            <div class="bill">
+              <i data-icon="play"></i>
+              <div>
+                <strong>Netflix Standard</strong
+                ><small
+                  ><span data-i18n="Subscriptions · Due Oct 05"
+                    >Subscriptions · Due Oct 05</span
+                  ></small
+                >
+              </div>
+              <div>
+                <strong>R$ 49,90</strong
+                ><small class="gold"><span data-i18n="UPCOMING">UPCOMING</span></small>
+              </div>
+            </div>
+            <div class="bill">
+              <i data-icon="card"></i>
+              <div>
+                <strong><span data-i18n="Credit Card Statement">Credit Card Statement</span></strong
+                ><small><span data-i18n="Example · Due Oct 05">Example · Due Oct 05</span></small>
+              </div>
+              <div>
+                <strong>R$ 842,35</strong
+                ><small class="gold"><span data-i18n="UPCOMING">UPCOMING</span></small>
+              </div>
+            </div>
+            <button class="button secondary" data-soon>
+              <span data-i18n="View all bills &amp; recurring">View all bills &amp; recurring</span>
+            </button>
+          </section>
+        </div>
+        <footer class="page-footer desktop-only">
+          <span
+            ><span data-i18n="● Money+ · Personal Finance Tracker"
+              >● Money+ · Personal Finance Tracker</span
+            ></span
+          ><span>Money+ © 2026</span>
+        </footer>
+      </main>
+    </div>
+    <nav class="bottom-nav" aria-label="Mobile navigation" data-i18n-aria-label="Mobile navigation">
+      <a href="index.html" class="active"
+        ><i data-icon="home"></i><span><span data-i18n="Home">Home</span></span></a
+      ><a href="transactions.html" class=""
+        ><i data-icon="receipt"></i
+        ><span><span data-i18n="Transactions">Transactions</span></span></a
+      ><a href="budget.html" class=""
+        ><i data-icon="wallet"></i><span><span data-i18n="Budget">Budget</span></span></a
+      ><a href="#" class="" data-soon
+        ><i data-icon="flag"></i><span><span data-i18n="Goals">Goals</span></span></a
+      ><a href="#" class="" data-soon
+        ><i data-icon="grid"></i><span><span data-i18n="More">More</span></span></a
+      >
+    </nav>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

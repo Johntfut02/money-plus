@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Money+ — a responsive personal finance tracker." />
+    <title>Add Transaction | Money+</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/i18n.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body data-page="add-transaction">
+    <aside class="sidebar">
+      <a class="brand" href="index.html"
+        ><span class="coin">M↗</span
+        ><span
+          >Money<span class="gold">+</span
+          ><small><span data-i18n="PERSONAL FINANCE">PERSONAL FINANCE</span></small></span
+        ></a
+      >
+      <nav aria-label="Main navigation" data-i18n-aria-label="Main navigation">
+        <a href="index.html" class=""
+          ><i data-icon="home"></i><span data-i18n="Dashboard">Dashboard</span></a
+        ><a href="transactions.html" class=""
+          ><i data-icon="receipt"></i><span data-i18n="Transactions">Transactions</span></a
+        ><a href="budget.html" class=""
+          ><i data-icon="wallet"></i><span data-i18n="Budgets">Budgets</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="calendar"></i
+          ><span data-i18n="Bills &amp; Recurring">Bills &amp; Recurring</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="flag"></i><span data-i18n="Goals">Goals</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="card"></i><span data-i18n="Cards">Cards</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="trend"></i><span data-i18n="Insights">Insights</span></a
+        >
+      </nav>
+      <button class="settings" data-soon>
+        <i data-icon="settings"></i><span data-i18n="Settings">Settings</span>
+      </button>
+    </aside>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="mobile-brand brand" href="index.html"
+          ><span class="coin">M↗</span
+          ><span
+            >Money+<small class="gold"
+              ><span data-i18n="NEW TRANSACTION">NEW TRANSACTION</span></small
+            ></span
+          ></a
+        ><a class="top-search" href="transactions.html"
+          ><i data-icon="search"></i
+          ><span data-i18n="Search transactions, budgets, cards..."
+            >Search transactions, budgets, cards...</span
+          ></a
+        >
+        <div class="top-actions">
+          <select class="language-control" aria-label="Language / Idioma">
+            <option value="pt">PT</option>
+            <option value="en">EN</option></select
+          ><select
+            class="month-control desktop-month"
+            aria-label="Select month"
+            data-i18n-aria-label="Select month"
+          ></select
+          ><button
+            class="notification"
+            data-soon
+            aria-label="Notifications"
+            data-i18n-aria-label="Notifications"
+          >
+            <i data-icon="bell"></i><span></span></button
+          ><a class="button primary top-add" href="add-transaction.html"
+            ><i data-icon="plus"></i><span data-i18n="Add Transaction">Add Transaction</span></a
+          ><span class="avatar">JP</span><strong class="user-name">João M.</strong>
+        </div>
+      </header>
+      <main>
+        <section class="page-heading add-heading">
+          <a
+            href="transactions.html"
+            class="back-link"
+            aria-label="Back to Transactions"
+            data-i18n-aria-label="Back to Transactions"
+            ><i data-icon="left"></i
+          ></a>
+          <h1><span data-i18n="New Transaction">New Transaction</span></h1>
+        </section>
+        <form id="transaction-form">
+          <div class="section-heading">
+            <span class="eyebrow muted"><span data-i18n="LEDGER ENTRY">LEDGER ENTRY</span></span
+            ><button type="reset" class="text-button gold">
+              <i data-icon="reset"></i><span data-i18n="Reset">Reset</span>
+            </button>
+          </div>
+          <fieldset class="type-tabs">
+            <legend class="sr-only" data-i18n="Transaction type">Transaction type</legend>
+            <label
+              ><input type="radio" name="type" value="expense" checked /><span
+                ><span data-i18n="↗ Expense">↗ Expense</span></span
+              ></label
+            ><label
+              ><input type="radio" name="type" value="income" /><span
+                ><span data-i18n="↙ Income">↙ Income</span></span
+              ></label
+            >
+          </fieldset>
+          <div class="card amount-card">
+            <label for="amount"><span data-i18n="TOTAL AMOUNT">TOTAL AMOUNT</span></label>
+            <div>
+              <span class="gold">R$</span
+              ><input
+                id="amount"
+                name="amount"
+                type="number"
+                min="0.01"
+                max="999999999"
+                step="0.01"
+                placeholder="0,00"
+                required
+                inputmode="decimal"
+              />
+            </div>
+          </div>
+          <label class="field"
+            ><span data-i18n="DESCRIPTION">DESCRIPTION</span
+            ><input
+              name="description"
+              id="description"
+              placeholder="e.g. Supermarket Pão de Açúcar"
+              maxlength="100"
+              required
+              data-i18n-placeholder="e.g. Supermarket Pão de Açúcar"
+          /></label>
+          <fieldset class="category-picker">
+            <legend>
+              <span data-i18n="CATEGORY">CATEGORY</span>
+              <span class="gold" id="category-selected"></span>
+            </legend>
+            <div id="category-options"></div>
+          </fieldset>
+          <div class="form-columns">
+            <label class="field"
+              ><span data-i18n="DATE">DATE</span
+              ><input type="date" name="date" required value="2026-09-30" /></label
+            ><label class="field"
+              ><span data-i18n="PAYMENT METHOD">PAYMENT METHOD</span
+              ><select name="paymentMethod">
+                <option value="Pix">Pix</option>
+                <option data-i18n="Credit Card" value="Credit Card">Credit Card</option>
+                <option data-i18n="Debit Card" value="Debit Card">Debit Card</option>
+                <option data-i18n="Bank Transfer" value="Bank Transfer">Bank Transfer</option>
+                <option data-i18n="Cash" value="Cash">Cash</option>
+              </select></label
+            >
+          </div>
+          <label class="field"
+            ><span data-i18n="NOTES">NOTES</span>
+            <span class="muted"><span data-i18n="Optional">Optional</span></span
+            ><textarea
+              name="notes"
+              rows="3"
+              maxlength="500"
+              placeholder="Add a note..."
+              data-i18n-placeholder="Add a note..."
+            ></textarea>
+          </label>
+          <p class="form-error negative" id="form-error" role="alert"></p>
+          <button class="button primary save-button" type="submit">
+            <i data-icon="check"></i
+            ><span data-i18n="Save Transaction">Save Transaction</span></button
+          ><a class="cancel-link" href="transactions.html"
+            ><span data-i18n="Cancel">Cancel</span></a
+          >
+        </form>
+        <footer class="page-footer desktop-only">
+          <span
+            ><span data-i18n="● Money+ · Personal Finance Tracker"
+              >● Money+ · Personal Finance Tracker</span
+            ></span
+          ><span>Money+ © 2026</span>
+        </footer>
+      </main>
+    </div>
+    <nav class="bottom-nav" aria-label="Mobile navigation" data-i18n-aria-label="Mobile navigation">
+      <a href="index.html" class=""
+        ><i data-icon="home"></i><span><span data-i18n="Home">Home</span></span></a
+      ><a href="transactions.html" class=""
+        ><i data-icon="receipt"></i
+        ><span><span data-i18n="Transactions">Transactions</span></span></a
+      ><a href="budget.html" class=""
+        ><i data-icon="wallet"></i><span><span data-i18n="Budget">Budget</span></span></a
+      ><a href="#" class="" data-soon
+        ><i data-icon="flag"></i><span><span data-i18n="Goals">Goals</span></span></a
+      ><a href="#" class="" data-soon
+        ><i data-icon="grid"></i><span><span data-i18n="More">More</span></span></a
+      >
+    </nav>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

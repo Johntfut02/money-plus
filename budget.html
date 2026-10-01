@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Money+ — a responsive personal finance tracker." />
+    <title>Budget | Money+</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/i18n.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body data-page="budget">
+    <aside class="sidebar">
+      <a class="brand" href="index.html"
+        ><span class="coin">M↗</span
+        ><span
+          >Money<span class="gold">+</span
+          ><small><span data-i18n="PERSONAL FINANCE">PERSONAL FINANCE</span></small></span
+        ></a
+      >
+      <nav aria-label="Main navigation" data-i18n-aria-label="Main navigation">
+        <a href="index.html" class=""
+          ><i data-icon="home"></i><span data-i18n="Dashboard">Dashboard</span></a
+        ><a href="transactions.html" class=""
+          ><i data-icon="receipt"></i><span data-i18n="Transactions">Transactions</span></a
+        ><a href="budget.html" class="active"
+          ><i data-icon="wallet"></i><span data-i18n="Budgets">Budgets</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="calendar"></i
+          ><span data-i18n="Bills &amp; Recurring">Bills &amp; Recurring</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="flag"></i><span data-i18n="Goals">Goals</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="card"></i><span data-i18n="Cards">Cards</span></a
+        ><a href="#" class="" data-soon
+          ><i data-icon="trend"></i><span data-i18n="Insights">Insights</span></a
+        >
+      </nav>
+      <button class="settings" data-soon>
+        <i data-icon="settings"></i><span data-i18n="Settings">Settings</span>
+      </button>
+    </aside>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="mobile-brand brand" href="index.html"
+          ><span class="coin">M↗</span
+          ><span
+            >Money+<small class="gold"><span data-i18n="BUDGET">BUDGET</span></small></span
+          ></a
+        ><a class="top-search" href="transactions.html"
+          ><i data-icon="search"></i
+          ><span data-i18n="Search transactions, budgets, cards..."
+            >Search transactions, budgets, cards...</span
+          ></a
+        >
+        <div class="top-actions">
+          <select class="language-control" aria-label="Language / Idioma">
+            <option value="pt">PT</option>
+            <option value="en">EN</option></select
+          ><select
+            class="month-control desktop-month"
+            aria-label="Select month"
+            data-i18n-aria-label="Select month"
+          ></select
+          ><button
+            class="notification"
+            data-soon
+            aria-label="Notifications"
+            data-i18n-aria-label="Notifications"
+          >
+            <i data-icon="bell"></i><span></span></button
+          ><a class="button primary top-add" href="add-transaction.html"
+            ><i data-icon="plus"></i><span data-i18n="Add Transaction">Add Transaction</span></a
+          ><span class="avatar">JP</span><strong class="user-name">João M.</strong>
+        </div>
+      </header>
+      <main>
+        <section class="page-heading">
+          <div>
+            <h1><span data-i18n="Monthly Budget">Monthly Budget</span></h1>
+            <p class="eyebrow">
+              <span data-i18n="30-DAY BILLING CYCLE">30-DAY BILLING CYCLE</span>
+            </p>
+          </div>
+          <select
+            class="month-control"
+            aria-label="Budget month"
+            data-i18n-aria-label="Budget month"
+          ></select>
+        </section>
+        <section class="card allocation-card">
+          <div class="section-heading">
+            <h2 class="eyebrow"><span data-i18n="● TOTAL ALLOCATION">● TOTAL ALLOCATION</span></h2>
+            <span class="badge" data-budget-status></span>
+          </div>
+          <div class="allocation-values">
+            <div>
+              <small
+                ><span data-i18n="Spent of">Spent of</span> <span data-budget-limit></span
+              ></small>
+              <h2 data-total="expenses"></h2>
+            </div>
+            <div>
+              <small><span data-i18n="Remaining">Remaining</span></small>
+              <h3 class="gold" data-remaining></h3>
+            </div>
+          </div>
+          <div class="progress"><span data-budget-progress></span></div>
+          <div class="budget-foot">
+            <span data-usage></span><span class="positive" data-budget-status></span>
+          </div>
+          <div class="flow-values allocation-details">
+            <div>
+              <small><span data-i18n="Daily Avg">Daily Avg</span></small
+              ><strong data-daily-average></strong>
+            </div>
+            <div>
+              <small><span data-i18n="Net Savings">Net Savings</span></small
+              ><strong data-total="savings"></strong>
+            </div>
+            <div>
+              <small><span data-i18n="Savings Rate">Savings Rate</span></small
+              ><strong class="positive" data-rate></strong>
+            </div>
+          </div>
+        </section>
+        <section class="card insight-card budget-insight">
+          <div class="insight-icon"><i data-icon="spark"></i></div>
+          <div>
+            <h2>
+              <span data-i18n="Money+ Insight">Money+ Insight</span>
+              <span class="badge positive"><span data-i18n="RULE BASED">RULE BASED</span></span>
+            </h2>
+            <div data-insights></div>
+          </div>
+        </section>
+        <div class="section-heading budget-heading">
+          <h2><span data-i18n="Category Breakdown">Category Breakdown</span></h2>
+          <span class="muted"><span data-i18n="6 Active Budgets">6 Active Budgets</span></span>
+        </div>
+        <div id="budget-categories"></div>
+        <p class="muted centered">
+          <span data-i18n="Category limits are fixed for this demo."
+            >Category limits are fixed for this demo.</span
+          >
+        </p>
+        <footer class="page-footer desktop-only">
+          <span
+            ><span data-i18n="● Money+ · Personal Finance Tracker"
+              >● Money+ · Personal Finance Tracker</span
+            ></span
+          ><span>Money+ © 2026</span>
+        </footer>
+      </main>
+    </div>
+    <nav class="bottom-nav" aria-label="Mobile navigation" data-i18n-aria-label="Mobile navigation">
+      <a href="index.html" class=""
+        ><i data-icon="home"></i><span><span data-i18n="Home">Home</span></span></a
+      ><a href="transactions.html" class=""
+        ><i data-icon="receipt"></i
+        ><span><span data-i18n="Transactions">Transactions</span></span></a
+      ><a href="budget.html" class="active"
+        ><i data-icon="wallet"></i><span><span data-i18n="Budget">Budget</span></span></a
+      ><a href="#" class="" data-soon
+        ><i data-icon="flag"></i><span><span data-i18n="Goals">Goals</span></span></a
+      ><a href="#" class="" data-soon
+        ><i data-icon="grid"></i><span><span data-i18n="More">More</span></span></a
+      >
+    </nav>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
