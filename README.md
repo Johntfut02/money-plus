@@ -50,11 +50,18 @@ Data stays in this browser and origin; there is no cloud sync. Clearing browser 
 
 ## Live Demo
 
-https://money-plus-jp.jjpp-mz.chatgpt.site
+https://johntfut02.github.io/money-plus/
 
 ## Screenshots
 
-[Add desktop and mobile screenshots here]
+### Desktop Dashboard
+![Money+ Desktop Dashboard](assets/screenshots/dashboard-desktop.png)
+
+### Transactions
+![Money+ Transactions](assets/screenshots/transactions-desktop.png)
+
+### Budget
+![Money+ Budget](assets/screenshots/budget-desktop.png)
 
 ## Future Improvements
 
