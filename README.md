@@ -53,6 +53,8 @@ Opening balance can be set on the dashboard, with a start date. It is stored pri
 
 ## Live Demo
 
+Transactions can be exported for the selected month with **Export CSV**. Includes dates, descriptions, categories, payment methods, signed BRL amounts and notes. The export follows the site's PT/EN language and includes the full month regardless of search/type filters. See [CSV guide](docs/exportacao-csv.md).
+
 https://johntfut02.github.io/money-plus/
 
 ## Screenshots

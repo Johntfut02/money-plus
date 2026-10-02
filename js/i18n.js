@@ -8,6 +8,11 @@ try {
   /* Use the browser language when storage is unavailable. */
 }
 const portuguese = {
+  "Export CSV": "Exportar CSV",
+  "Export includes all transactions from the selected month, regardless of search or type filters.": "A exportação inclui todas as transações do mês selecionado, independentemente da busca ou dos filtros de tipo.",
+  "No transactions to export for this month.": "Não há transações para exportar neste mês.",
+  "CSV download started.": "Download do CSV iniciado.",
+  "Could not export. Try again.": "Não foi possível exportar. Tente novamente.",
 "Set opening balance": "Definir saldo inicial",
 "Opening balance (R$)": "Saldo inicial (R$)",
 "Start date": "Data de início",

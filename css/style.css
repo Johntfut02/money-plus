@@ -2211,3 +2211,11 @@ button:disabled { opacity: .6; cursor: wait; }
 .opening-editor form { display: grid; gap: 10px; margin-top: 14px; }
 .opening-editor input { box-sizing: border-box; width: 100%; min-width: 0; padding: 10px; background: #101014; border: 1px solid #303039; border-radius: 8px; color: #fff; color-scheme: dark; }
 .opening-editor p { margin: 0; line-height: 1.5; }
+.transaction-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.export-help { font-size: 13px; line-height: 1.5; margin: -8px 0 20px; }
+@media (max-width: 600px) {
+  body[data-page="transactions"] .page-heading { flex-wrap: wrap; gap: 16px; }
+  .transaction-actions { width: 100%; }
+  .transaction-actions .button { flex: 1; white-space: nowrap; }
+  .export-help { margin-top: 0; }
+}

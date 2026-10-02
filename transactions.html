@@ -95,10 +95,14 @@
               <span data-i18n="TOTAL">TOTAL</span>
             </p>
           </div>
+          <div class="transaction-actions">
+          <button type="button" class="button secondary" id="export-csv" aria-describedby="export-help"><span data-i18n="Export CSV">Export CSV</span></button>
           <a class="button primary" href="add-transaction.html"
             ><i data-icon="plus"></i><span data-i18n="Add">Add</span></a
           >
+          </div>
         </section>
+        <p class="muted export-help" id="export-help" data-i18n="Export includes all transactions from the selected month, regardless of search or type filters.">Export includes all transactions from the selected month, regardless of search or type filters.</p>
         <div class="transaction-controls">
           <label class="search-box"
             ><i data-icon="search"></i

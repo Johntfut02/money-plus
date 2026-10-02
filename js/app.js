@@ -1,4 +1,5 @@
 import { carregarSaldoInicial, salvarSaldoInicial, validOpening } from "./settings-store.js";
+import { transactionsCSV, downloadCSV } from "./csv-export.js";
 /* Money+ — calculations and page interactions, with private Firestore data. */
 import { app } from "./firebase-config.js";
 import { carregarTransacoes, salvarTransacao, excluirTransacao } from "./transactions-store.js";
@@ -590,6 +591,20 @@ function setupInteractions() {
   setupForm();
   setupBudgetEditor();
   setupOpeningEditor();
+  document.querySelector("#export-csv")?.addEventListener("click", () => {
+    if (!currentUser || auth.currentUser?.uid !== currentUser.uid) return;
+    if (!monthlyTransactions().length) {
+      showToast(t("No transactions to export for this month."));
+      return;
+    }
+    try {
+      downloadCSV(transactionsCSV(transactions, selectedMonth, language, t), selectedMonth, language);
+      showToast(t("CSV download started."));
+    } catch (error) {
+      console.error(error);
+      showToast(t("Could not export. Try again."));
+    }
+  });
   setupLanguage({ updateMonthOptions, renderPage, renderCategoryOptions, categoryDetails });
   document.querySelectorAll(".month-control").forEach((select) =>
     select.addEventListener("change", (event) => {
