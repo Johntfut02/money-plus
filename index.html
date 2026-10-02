@@ -129,8 +129,21 @@
               <span class="badge positive"
                 ><span data-i18n="Opening balance">Opening balance</span></span
               >
-              <span>R$ 0,00</span>
+              <span id="opening-summary">R$ 0,00</span>
             </p>
+            <p id="opening-note" role="status"></p>
+            <details class="opening-editor">
+              <summary data-i18n="Set opening balance">Set opening balance</summary>
+              <form id="opening-form">
+                <label for="opening-amount" data-i18n="Opening balance (R$)">Opening balance (R$)</label>
+                <input id="opening-amount" name="openingBalance" type="number" step="0.01" min="-999999999" max="999999999" required>
+                <label for="opening-date" data-i18n="Start date">Start date</label>
+                <input id="opening-date" name="openingDate" type="date" min="1900-01-01" max="9999-12-31" required>
+                <p data-i18n="Use the balance at the beginning of this date. Transactions from this date onward are added to it.">Use the balance at the beginning of this date. Transactions from this date onward are added to it.</p>
+                <button class="button primary" type="submit" data-i18n="Save opening balance">Save opening balance</button>
+                <p id="opening-status" role="status" aria-live="polite"></p>
+              </form>
+            </details>
             <a class="button primary mobile-only" href="add-transaction.html"
               ><i data-icon="plus"></i><span data-i18n="Add Transaction">Add Transaction</span></a
             >

@@ -49,7 +49,7 @@ New accounts start with no transactions and an opening balance of zero. Months i
 
 The Firebase project must enable Google sign-in and authorize the host (localhost/127.0.0.1 for local testing and johntfut02.github.io for the published site). Firestore rules must require `request.auth != null && request.auth.uid == userId` for documents and subcollections under `users/{userId}`. Client validation does not replace server-side field validation in future rules.
 
-These local changes have not been published to GitHub Pages.
+Opening balance can be set on the dashboard, with a start date. It is stored privately under users/{uid}/settings/finance. Available balance includes transactions from that date through the selected month; earlier months show an unavailable balance. Monthly income and expense totals still include all transactions for their month.
 
 ## Live Demo
 
@@ -71,5 +71,4 @@ https://johntfut02.github.io/money-plus/
 - Goals
 - Credit cards
 - Recurring payments
-- Recurring payments and customizable opening balance
 - React version

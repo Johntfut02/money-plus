@@ -2205,3 +2205,9 @@ button:disabled { opacity: .6; cursor: wait; }
   .flow-summary .flow-values { grid-template-columns: 1fr; }
   .flow-summary .flow-values > div { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; }
 }
+
+.opening-editor { margin-top: 16px; font-size: 13px; }
+.opening-editor summary { cursor: pointer; color: #d9aa37; }
+.opening-editor form { display: grid; gap: 10px; margin-top: 14px; }
+.opening-editor input { box-sizing: border-box; width: 100%; min-width: 0; padding: 10px; background: #101014; border: 1px solid #303039; border-radius: 8px; color: #fff; color-scheme: dark; }
+.opening-editor p { margin: 0; line-height: 1.5; }

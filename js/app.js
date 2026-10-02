@@ -1,3 +1,4 @@
+import { carregarSaldoInicial, salvarSaldoInicial, validOpening } from "./settings-store.js";
 /* Money+ — calculations and page interactions, with private Firestore data. */
 import { app } from "./firebase-config.js";
 import { carregarTransacoes, salvarTransacao, excluirTransacao } from "./transactions-store.js";
@@ -10,7 +11,7 @@ let currentUser = null;
 let saving = false;
 let savingBudget = false;
 let budgetsByMonth = {};
-const OPENING_BALANCE = 0;
+let opening = { openingBalance: 0, openingDate: null };
 const hoje = new Date();
 
 const DEFAULT_MONTH =
@@ -113,15 +114,12 @@ function calculateExpenses(rows = monthlyTransactions()) {
 function calculateSavings(rows = monthlyTransactions()) {
   return Math.round((calculateIncome(rows) - calculateExpenses(rows)) * 100) / 100;
 }
-// Available balance includes the opening balance and all entries through this month.
+// The opening amount is the balance at the beginning of its date.
 function calculateBalance() {
-  return (
-    Math.round(
-      (OPENING_BALANCE +
-        calculateSavings(transactions.filter((row) => row.date.slice(0, 7) <= selectedMonth))) *
-        100,
-    ) / 100
-  );
+  if (opening.openingDate && selectedMonth < opening.openingDate.slice(0, 7)) return null;
+  return Math.round((opening.openingBalance + calculateSavings(transactions.filter(row =>
+    row.date.slice(0, 7) <= selectedMonth && (!opening.openingDate || row.date >= opening.openingDate)
+  ))) * 100) / 100;
 }
 function calculateCategorySpending(rows = monthlyTransactions()) {
   return rows
@@ -241,6 +239,10 @@ function fillIcons() {
   });
 }
 function renderTotals() {
+  const openingLabel = document.querySelector("#opening-summary");
+  if (openingLabel) openingLabel.textContent = `${money(opening.openingBalance)}${opening.openingDate ? " · " + opening.openingDate.split("-").reverse().join("/") : ""}`;
+  const note = document.querySelector("#opening-note");
+  if (note) note.textContent = calculateBalance() === null ? t("Balance unavailable before the opening date.") : "";
   const income = calculateIncome();
   const usage = calculateBudgetUsage();
   const totals = {
@@ -251,7 +253,7 @@ function renderTotals() {
     donut: usage.spent,
   };
   document.querySelectorAll("[data-total]").forEach((element) => {
-    element.textContent = money(totals[element.dataset.total]);
+    element.textContent = totals[element.dataset.total] === null ? "—" : money(totals[element.dataset.total]);
   });
   document.querySelectorAll(".selected-month").forEach((element) => {
     element.textContent = monthLabel(selectedMonth);
@@ -550,11 +552,44 @@ function setupBudgetEditor() {
   });
 }
 
+function setupOpeningEditor() {
+  const form = document.querySelector("#opening-form");
+  if (!form) return;
+  form.elements.openingBalance.value = opening.openingBalance.toFixed(2);
+  form.elements.openingDate.value = opening.openingDate || `${DEFAULT_MONTH}-${String(hoje.getDate()).padStart(2, "0")}`;
+  let pending = false;
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (pending) return;
+    const value = { openingBalance: Number(form.elements.openingBalance.value), openingDate: form.elements.openingDate.value };
+    const status = document.querySelector("#opening-status");
+    if (!form.elements.openingBalance.value.trim() || !validOpening(value)) { status.textContent = t("Enter a valid balance and date."); return; }
+    const uid = auth.currentUser?.uid;
+    const controls = form.querySelectorAll("input, button");
+    pending = true;
+    controls.forEach(control => { control.disabled = true; });
+    status.textContent = t("Saving…");
+    try {
+      await salvarSaldoInicial(value);
+      if (auth.currentUser?.uid !== uid) return;
+      opening = { ...value, openingBalance: Math.round(value.openingBalance * 100) / 100 };
+      renderPage();
+      status.textContent = t("Opening balance saved.");
+    } catch (error) {
+      console.error(error);
+      status.textContent = t("Could not save the opening balance. Try again.");
+    } finally {
+      pending = false;
+      controls.forEach(control => { control.disabled = false; });
+    }
+  });
+}
 function setupInteractions() {
   updateMonthOptions();
   renderPage();
   setupForm();
   setupBudgetEditor();
+  setupOpeningEditor();
   setupLanguage({ updateMonthOptions, renderPage, renderCategoryOptions, categoryDetails });
   document.querySelectorAll(".month-control").forEach((select) =>
     select.addEventListener("change", (event) => {
@@ -657,13 +692,14 @@ async function startApp() {
       document.body.dataset.session = "loading";
       location.replace("login.html");
     });
-    const [loaded, loadedBudgets] = await Promise.all([carregarTransacoes(), carregarOrcamentos()]);
+    const [loaded, loadedBudgets, loadedOpening] = await Promise.all([carregarTransacoes(), carregarOrcamentos(), carregarSaldoInicial()]);
     if (auth.currentUser?.uid !== uid) return;
     if (!loaded.every(isValidTransaction)) {
       throw new Error("Invalid transaction data in Firestore");
     }
     transactions = loaded;
     budgetsByMonth = loadedBudgets;
+    opening = loadedOpening;
     const requestedMonth = new URLSearchParams(location.search).get("month");
     if (/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth || "")) selectedMonth = requestedMonth;
     setupInteractions();

@@ -8,6 +8,15 @@ try {
   /* Use the browser language when storage is unavailable. */
 }
 const portuguese = {
+"Set opening balance": "Definir saldo inicial",
+"Opening balance (R$)": "Saldo inicial (R$)",
+"Start date": "Data de início",
+"Save opening balance": "Salvar saldo inicial",
+"Use the balance at the beginning of this date. Transactions from this date onward are added to it.": "Informe o saldo no início desta data. Os lançamentos a partir dela serão somados a esse valor.",
+"Balance unavailable before the opening date.": "Saldo indisponível antes da data de início.",
+"Enter a valid balance and date.": "Informe um saldo e uma data válidos.",
+"Opening balance saved.": "Saldo inicial salvo.",
+"Could not save the opening balance. Try again.": "Não foi possível salvar o saldo inicial. Tente novamente.",
   "Monthly limit (R$)": "Limite mensal (R$)",
   "Save limit": "Salvar limite",
   "active budgets": "orçamentos ativos",
