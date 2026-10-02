@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Money+ — a responsive personal finance tracker." />
     <title>Budget | Money+</title>
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="assets/money-plus.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/style.css" />
-    <script src="js/i18n.js" defer></script>
-    <script src="js/app.js" defer></script>
+    <script type="module" src="js/app.js"></script>
   </head>
-  <body data-page="budget">
+  <body data-page="budget" data-session="loading" aria-busy="true">
+    <section id="session-panel" role="status" aria-live="polite">
+      <h1>Money+</h1>
+      <p id="session-message">Carregando sua conta… / Loading your account…</p>
+      <p><a href="">Recarregar / Reload</a> · <a href="login.html">Login</a></p>
+    </section>
     <aside class="sidebar">
       <a class="brand" href="index.html"
-        ><span class="coin">M↗</span
+        ><img class="brand-logo" src="assets/money-plus.png" alt="" /
         ><span
           >Money<span class="gold">+</span
           ><small><span data-i18n="PERSONAL FINANCE">PERSONAL FINANCE</span></small></span
@@ -49,7 +53,7 @@
     <div class="app-shell">
       <header class="topbar">
         <a class="mobile-brand brand" href="index.html"
-          ><span class="coin">M↗</span
+          ><img class="brand-logo" src="assets/money-plus.png" alt="" /
           ><span
             >Money+<small class="gold"><span data-i18n="BUDGET">BUDGET</span></small></span
           ></a
@@ -77,7 +81,7 @@
             <i data-icon="bell"></i><span></span></button
           ><a class="button primary top-add" href="add-transaction.html"
             ><i data-icon="plus"></i><span data-i18n="Add Transaction">Add Transaction</span></a
-          ><span class="avatar">JP</span><strong class="user-name">João M.</strong>
+          ><span class="avatar"></span><strong class="user-name"></strong><button type="button" class="button secondary signout" id="signout"><span data-i18n="Sign out">Sair</span></button>
         </div>
       </header>
       <main>
@@ -85,7 +89,7 @@
           <div>
             <h1><span data-i18n="Monthly Budget">Monthly Budget</span></h1>
             <p class="eyebrow">
-              <span data-i18n="30-DAY BILLING CYCLE">30-DAY BILLING CYCLE</span>
+              <span class="selected-month"></span>
             </p>
           </div>
           <select
@@ -142,12 +146,12 @@
         </section>
         <div class="section-heading budget-heading">
           <h2><span data-i18n="Category Breakdown">Category Breakdown</span></h2>
-          <span class="muted"><span data-i18n="6 Active Budgets">6 Active Budgets</span></span>
+          <span class="muted"><span data-active-budgets></span></span>
         </div>
         <div id="budget-categories"></div>
         <p class="muted centered">
-          <span data-i18n="Category limits are fixed for this demo."
-            >Category limits are fixed for this demo.</span
+          <span data-i18n="Limits apply to the selected month. Zero means no budget set."
+            >Os limites valem para o mês selecionado. Zero significa orçamento não definido.</span
           >
         </p>
         <footer class="page-footer desktop-only">

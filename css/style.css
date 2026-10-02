@@ -2174,3 +2174,34 @@ body[data-page="add-transaction"] main {
     width: 200px;
   }
 }
+
+/* Financial screens appear only after authentication and data loading. */
+body[data-session="loading"] > :not(#session-panel) { display: none !important; }
+body[data-session="ready"] #session-panel { display: none; }
+#session-panel { max-width: 440px; margin: 15vh auto; padding: 24px; text-align: center; }
+#session-panel a { color: #e5b85c; text-decoration: underline; }
+button:disabled { opacity: .6; cursor: wait; }
+.signout { padding: 8px 10px; white-space: nowrap; flex-shrink: 0; }
+@media (max-width: 760px) { .top-actions .signout { display: inline-flex; font-size: 12px; padding: 6px 8px; } }
+
+/* Category budget editors reuse existing card and button styles. */
+.budget-editor { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px; }
+.budget-editor label { display: block; margin-bottom: 8px; color: var(--text-secondary); }
+.budget-editor-controls { display: flex; gap: 10px; align-items: center; }
+.budget-editor input { min-width: 0; flex: 1; width: 100%; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.budget-error { margin-top: 8px; color: var(--negative); min-height: 1.5em; font-size: 13px; }
+@media (max-width: 420px) { .budget-editor-controls { flex-wrap: wrap; } .budget-editor-controls .button { width: 100%; } }
+
+/* The same official logo appears in the sidebar and mobile header. */
+.brand-logo { width: 40px; height: 40px; object-fit: contain; border-radius: 10px; flex-shrink: 0; }
+@media (max-width: 760px) {
+  .brand-logo { width: 34px; height: 34px; border-radius: 8px; }
+  .topbar { gap: 8px; }
+  .topbar .brand { min-width: 0; gap: 8px; }
+  .top-actions { flex-shrink: 0; }
+}
+@media (max-width: 370px) {
+  .topbar .notification, .topbar .avatar { display: none; }
+  .flow-summary .flow-values { grid-template-columns: 1fr; }
+  .flow-summary .flow-values > div { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; }
+}

@@ -1,6 +1,6 @@
 /* Native language preference and small, explicit translation dictionary. */
 const LANGUAGE_KEY = "money-plus-language-v1";
-let language = navigator.language.toLowerCase().startsWith("pt") ? "pt" : "en";
+export let language = navigator.language.toLowerCase().startsWith("pt") ? "pt" : "en";
 try {
   const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
   if (["pt", "en"].includes(savedLanguage)) language = savedLanguage;
@@ -8,6 +8,24 @@ try {
   /* Use the browser language when storage is unavailable. */
 }
 const portuguese = {
+  "Monthly limit (R$)": "Limite mensal (R$)",
+  "Save limit": "Salvar limite",
+  "active budgets": "orçamentos ativos",
+  "Enter a valid limit. Use zero for no budget.": "Informe um limite válido. Use zero para deixar sem orçamento.",
+  "Saving…": "Salvando…",
+  "Budget saved successfully.": "Orçamento salvo com sucesso.",
+  "Could not save the budget. Check your connection and try again.": "Não foi possível salvar o orçamento. Verifique a conexão e tente novamente.",
+  "Limits apply to the selected month. Zero means no budget set.": "Os limites valem para o mês selecionado. Zero significa orçamento não definido.",
+  "Set category limits to track your budget.": "Defina limites por categoria para acompanhar seu orçamento.",
+  "No budget set": "Orçamento não definido",
+  "Hello": "Olá",
+  "Your account": "Sua conta",
+  "Sign out": "Sair",
+  "Could not save to the cloud. Check your connection and try again.": "Não foi possível salvar na nuvem. Verifique sua conexão e tente novamente.",
+  "Could not delete. Check your connection and try again.": "Não foi possível excluir. Verifique sua conexão e tente novamente.",
+  "Could not sign out. Try again.": "Não foi possível sair. Tente novamente.",
+  "Could not load your data. Check your connection and reload the page.": "Não foi possível carregar seus dados. Verifique a conexão e recarregue a página.",
+  "Upcoming payments will be available in a future update.": "As contas a pagar estarão disponíveis em uma atualização futura.",
   Apr: "abr",
   May: "mai",
   Jun: "jun",
@@ -193,10 +211,10 @@ const portuguese = {
   "Add bill": "Adicionar conta",
   "Monthly income and expenses": "Receitas e despesas mensais",
 };
-function t(text) {
+export function t(text) {
   return language === "pt" ? portuguese[text] || text : text;
 }
-function locale() {
+export function locale() {
   return language === "pt" ? "pt-BR" : "en-GB";
 }
 function applyLanguage() {
@@ -213,7 +231,7 @@ function applyLanguage() {
     select.value = language;
   });
 }
-function setupLanguage() {
+export function setupLanguage({ updateMonthOptions, renderPage, renderCategoryOptions, categoryDetails }) {
   applyLanguage();
   document.querySelectorAll(".language-control").forEach((select) =>
     select.addEventListener("change", (event) => {

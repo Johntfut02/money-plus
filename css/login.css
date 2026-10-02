@@ -1,0 +1,79 @@
+/*Faz o tamanho dos elementos incluir bordas e espacamento.*/
+* {
+    box-sizing: border-box;
+}
+/* Cores, fonte e centralização da página. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  background: #0e0e12;
+  color: #e4e1e7;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+/* Cartão de login: adapta a largura ao celular e ao computador. */
+main {
+  width: 100%;
+  max-width: 440px;
+  padding: 32px 24px;
+  background: #1b1b1f;
+  border: 1px solid #353439;
+  border-radius: 16px;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 32px;
+  color: #ffd582;
+  font-size: 32px;
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+
+p {
+  color: #cfc5b9;
+  line-height: 1.6;
+}
+
+/* Botão principal. */
+button {
+  width: 100%;
+  margin: 24px 0 12px;
+  padding: 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #ffd582;
+  color: #402d00;
+  font: inherit;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #eec063;
+}
+
+button:focus-visible {
+  outline: 3px solid #e4e1e7;
+  outline-offset: 4px;
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+h1,
+h2 {
+  font-family: "Manrope", Arial, sans-serif;
+}

@@ -4,7 +4,7 @@ Money+ is a responsive personal finance tracker built with HTML, CSS and Vanilla
 
 ## Run
 
-Open `index.html` or use VS Code Live Server. No installation, framework or build step is needed. A local server is recommended: browsers may isolate localStorage between `file://` pages. Google Fonts is optional; offline fonts fall back to Arial.
+Use VS Code Live Server and open `login.html`. ES modules require an HTTP server. No framework or build step is needed. Internet access is required for Firebase login and financial data.
 
 ## Portfolio Project
 
@@ -17,13 +17,14 @@ Money+ was created as a front-end portfolio project focused on responsive interf
 - Transaction tracking: search, income/expense filters, add and delete with confirmation
 - Income, expense, balance and savings calculations
 - Category budgets and explicit over-budget labels
-- localStorage persistence and resettable September 2026 demo
+- Google login and private Firestore transactions per UID
+- Empty new accounts, zero opening balance, current month and next 12 months
 - Rule-based financial insights
 - CSS cash flow chart and calculated category donut
 
 ## Tech
 
-HTML5 · CSS3 · JavaScript ES6+ · localStorage
+HTML5 · CSS3 · Vanilla JavaScript modules · Firebase Authentication · Cloud Firestore
 
 ## Structure
 
@@ -40,13 +41,15 @@ assets/favicon.svg
 
 `app.js` contains the shared dataset, named calculation functions, rendering functions and form handlers. CSS is organized into design tokens, page styles and responsive rules.
 
-## Demo data and calculations
+## Account data and calculations
 
-September 2026: income R$ 3.280,00; expenses R$ 2.145,00; net savings R$ 1.135,00; opening balance R$ 1.285,00; available balance R$ 2.420,00. Budget allocation totals R$ 3.000,00 across six categories. The approved conceptual screens contain conflicting category totals, so this MVP uses one consistent dataset.
+Transactions are stored under `users/{uid}/transactions/{transactionId}`. Pages wait for authentication and a server read before displaying financial data. Save and delete success is shown only after server acknowledgement. Existing browser demo data is not imported or erased.
 
-All values use Brazilian currency. Selected-month income and expenses feed the charts, budgets and insights. Available balance includes the opening balance and transactions through the selected month. Historical cash flow values are illustrative. Upcoming payments are static examples, explicitly labeled as a future feature. Category limits are fixed. Insights are deterministic rules, not AI.
+New accounts start with no transactions and an opening balance of zero. Months include the current local month, the next 12 months and months with saved transactions. Charts use real data. Currency is BRL. Monthly category budget limits start at zero and can be edited on the Budget page. They are stored privately under `users/{uid}/budgets/{YYYY-MM}`, with category amounts in `limits`. Zero means no limit is configured; saving one category preserves the others. Upcoming payments are a future feature. Language preference alone is saved in localStorage.
 
-Data stays in this browser and origin; there is no cloud sync. Clearing browser storage removes saved data. Storage failures produce an error instead of reporting a successful save. Transactions use local calendar dates; default form date is September 30, 2026 to match the demo.
+The Firebase project must enable Google sign-in and authorize the host (localhost/127.0.0.1 for local testing and johntfut02.github.io for the published site). Firestore rules must require `request.auth != null && request.auth.uid == userId` for documents and subcollections under `users/{userId}`. Client validation does not replace server-side field validation in future rules.
+
+These local changes have not been published to GitHub Pages.
 
 ## Live Demo
 
@@ -68,6 +71,5 @@ https://johntfut02.github.io/money-plus/
 - Goals
 - Credit cards
 - Recurring payments
-- Backend/database
-- Authentication
+- Recurring payments and customizable opening balance
 - React version

@@ -1,15 +1,27 @@
-/* Money+ — shared data, calculations and page interactions. No dependencies. */
-const STORAGE_KEY = "money-plus-transactions-v1";
-const MONTH_KEY = "money-plus-month-v1";
-const OPENING_BALANCE = 1285;
-const DEFAULT_MONTH = "2026-09";
+/* Money+ — calculations and page interactions, with private Firestore data. */
+import { app } from "./firebase-config.js";
+import { carregarTransacoes, salvarTransacao, excluirTransacao } from "./transactions-store.js";
+import { carregarOrcamentos, salvarLimite } from "./budgets-store.js";
+import { language, t, locale, setupLanguage } from "./i18n.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+const auth = getAuth(app);
+let currentUser = null;
+let saving = false;
+let savingBudget = false;
+let budgetsByMonth = {};
+const OPENING_BALANCE = 0;
+const hoje = new Date();
+
+const DEFAULT_MONTH =
+  `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
 const budgets = {
-  Housing: 800,
-  Food: 700,
-  Transportation: 500,
-  Entertainment: 300,
-  Subscriptions: 250,
-  Shopping: 450,
+  Housing: 0,
+  Food: 0,
+  Transportation: 0,
+  Entertainment: 0,
+  Subscriptions: 0,
+  Shopping: 0,
 };
 const categoryDetails = {
   Housing: { label: "Housing", icon: "home", color: "#d5a641" },
@@ -20,158 +32,6 @@ const categoryDetails = {
   Shopping: { label: "Shopping & Personal", icon: "bag", color: "#85858d" },
   Income: { label: "Income", icon: "bank", color: "#26d797" },
 };
-const defaultTransactions = [
-  {
-    id: "demo-1",
-    name: "Salary Deposit",
-    category: "Income",
-    type: "income",
-    amount: 1400,
-    date: "2026-09-15",
-    paymentMethod: "Bank Transfer",
-    notes: "",
-  },
-  {
-    id: "demo-2",
-    name: "Monthly Allowance",
-    category: "Income",
-    type: "income",
-    amount: 680,
-    date: "2026-09-15",
-    paymentMethod: "Pix",
-    notes: "",
-  },
-  {
-    id: "demo-3",
-    name: "Freelance Web Design",
-    category: "Income",
-    type: "income",
-    amount: 450,
-    date: "2026-09-23",
-    paymentMethod: "Pix",
-    notes: "",
-  },
-  {
-    id: "demo-4",
-    name: "English Lessons",
-    category: "Income",
-    type: "income",
-    amount: 750,
-    date: "2026-09-10",
-    paymentMethod: "Pix",
-    notes: "",
-  },
-  {
-    id: "demo-5",
-    name: "Rent Contribution",
-    category: "Housing",
-    type: "expense",
-    amount: 700,
-    date: "2026-09-05",
-    paymentMethod: "Pix",
-    notes: "",
-  },
-  {
-    id: "demo-6",
-    name: "Supermarket Pão de Açúcar",
-    category: "Food",
-    type: "expense",
-    amount: 187.42,
-    date: "2026-09-18",
-    paymentMethod: "Credit Card",
-    notes: "",
-  },
-  {
-    id: "demo-7",
-    name: "Weekly Groceries",
-    category: "Food",
-    type: "expense",
-    amount: 227.58,
-    date: "2026-09-12",
-    paymentMethod: "Debit Card",
-    notes: "",
-  },
-  {
-    id: "demo-8",
-    name: "Pizza Night",
-    category: "Food",
-    type: "expense",
-    amount: 100,
-    date: "2026-09-07",
-    paymentMethod: "Pix",
-    notes: "",
-  },
-  {
-    id: "demo-9",
-    name: "Fuel Posto Ipiranga",
-    category: "Transportation",
-    type: "expense",
-    amount: 120,
-    date: "2026-09-20",
-    paymentMethod: "Debit Card",
-    notes: "",
-  },
-  {
-    id: "demo-10",
-    name: "Fuel & Parking",
-    category: "Transportation",
-    type: "expense",
-    amount: 230,
-    date: "2026-09-08",
-    paymentMethod: "Credit Card",
-    notes: "",
-  },
-  {
-    id: "demo-11",
-    name: "Cinema & Games",
-    category: "Entertainment",
-    type: "expense",
-    amount: 245,
-    date: "2026-09-14",
-    paymentMethod: "Credit Card",
-    notes: "",
-  },
-  {
-    id: "demo-12",
-    name: "Netflix Subscription",
-    category: "Subscriptions",
-    type: "expense",
-    amount: 49.9,
-    date: "2026-09-21",
-    paymentMethod: "Credit Card",
-    notes: "",
-  },
-  {
-    id: "demo-13",
-    name: "Fiber Internet",
-    category: "Subscriptions",
-    type: "expense",
-    amount: 100,
-    date: "2026-09-15",
-    paymentMethod: "Pix",
-    notes: "",
-  },
-  {
-    id: "demo-14",
-    name: "Music Subscription",
-    category: "Subscriptions",
-    type: "expense",
-    amount: 44.8,
-    date: "2026-09-03",
-    paymentMethod: "Credit Card",
-    notes: "",
-  },
-  {
-    id: "demo-15",
-    name: "Personal Shopping",
-    category: "Shopping",
-    type: "expense",
-    amount: 140.3,
-    date: "2026-09-06",
-    paymentMethod: "Debit Card",
-    notes: "",
-  },
-];
 const icons = {
   home: '<path d="m3 10 9-7 9 7v11h-6v-7H9v7H3z"/>',
   receipt: '<path d="M6 3h13v18l-3-2-3 2-3-2-4 2zM9 7h7M9 11h7M9 15h5"/>',
@@ -215,15 +75,8 @@ const escapeHTML = (value) =>
   );
 const sumAmounts = (rows) =>
   rows.reduce((total, row) => total + Math.round(row.amount * 100), 0) / 100;
-let storageAvailable = true;
-let transactions = loadTransactions();
+let transactions = [];
 let selectedMonth = DEFAULT_MONTH;
-try {
-  selectedMonth = localStorage.getItem(MONTH_KEY) || DEFAULT_MONTH;
-} catch {
-  storageAvailable = false;
-}
-if (!/^\d{4}-\d{2}$/.test(selectedMonth)) selectedMonth = DEFAULT_MONTH;
 let activeFilter = "all";
 let searchTerm = "";
 let toastTimer;
@@ -243,59 +96,11 @@ function isValidTransaction(row) {
     (row.notes === undefined || typeof row.notes === "string")
   );
 }
-function loadTransactions() {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored !== null) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.every(isValidTransaction)) return parsed;
-    }
-    const initial = defaultTransactions.map((row) => ({ ...row }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-    return initial;
-  } catch {
-    storageAvailable = false;
-    return defaultTransactions.map((row) => ({ ...row }));
-  }
+function applyMonthlyBudget() {
+  const limits = budgetsByMonth[selectedMonth] || {};
+  Object.keys(budgets).forEach((category) => { budgets[category] = limits[category] || 0; });
 }
-function saveTransactions(nextTransactions) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextTransactions));
-    transactions = nextTransactions;
-    return true;
-  } catch {
-    storageAvailable = false;
-    showToast(t("Could not save. Browser storage is unavailable or full."));
-    return false;
-  }
-}
-function resetTransactions() {
-  if (
-    !window.confirm(
-      t("Reset all transactions to the September 2026 demo? This removes your changes."),
-    )
-  )
-    return;
-  if (!saveTransactions(defaultTransactions.map((row) => ({ ...row })))) return;
-  selectedMonth = DEFAULT_MONTH;
-  try {
-    localStorage.setItem(MONTH_KEY, selectedMonth);
-  } catch {
-    /* The page still renders this month. */
-  }
-  activeFilter = "all";
-  searchTerm = "";
-  const search = document.querySelector("#search");
-  if (search) search.value = "";
-  document.querySelectorAll("[data-filter]").forEach((button) => {
-    const active = button.dataset.filter === "all";
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", active);
-  });
-  updateMonthOptions();
-  renderPage();
-  showToast(t("Demo data restored."));
-}
+
 function monthlyTransactions(month = selectedMonth) {
   return transactions.filter((row) => row.date.startsWith(month));
 }
@@ -332,8 +137,8 @@ function calculateBudgetUsage() {
   return {
     limit,
     spent,
-    remaining: Math.round((limit - spent) * 100) / 100,
-    percentage: (spent / limit) * 100,
+    remaining: limit > 0 ? Math.round((limit - spent) * 100) / 100 : 0,
+    percentage: limit > 0 ? (spent / limit) * 100 : 0,
   };
 }
 function getInsights() {
@@ -344,6 +149,7 @@ function getInsights() {
   if (expenses > income) messages.push(t("Your expenses are currently higher than your income."));
   Object.entries(budgets).forEach(([category, limit]) => {
     const spent = spending[category] || 0;
+    if (limit <= 0) return;
     if (spent > limit)
       messages.push(
         language === "pt"
@@ -368,7 +174,9 @@ function getInsights() {
       t(
         expenses === 0
           ? "No expenses recorded for this month yet."
-          : "Your spending is currently within your monthly budget.",
+          : Object.values(budgets).some((limit) => limit > 0)
+            ? "Your spending is currently within your monthly budget."
+            : "Set category limits to track your budget.",
       ),
     );
   return messages.slice(0, 2);
@@ -393,15 +201,37 @@ function shortDate(date) {
   });
 }
 function updateMonthOptions() {
+  const mesesDisponiveis = [];
+
+  // Inclui o mês atual e os próximos 12 meses.
+  for (let i = 0; i <= 12; i++) {
+    const data = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth() + i,
+      1
+    );
+
+    mesesDisponiveis.push(
+      `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}`
+    );
+  }
+
+  // Preserva também os meses que têm transações.
   const months = [
-    ...new Set([DEFAULT_MONTH, selectedMonth, ...transactions.map((row) => row.date.slice(0, 7))]),
-  ]
-    .sort()
-    .reverse();
+    ...new Set([
+      ...mesesDisponiveis,
+      selectedMonth,
+      ...Object.keys(budgetsByMonth),
+      ...transactions.map((row) => row.date.slice(0, 7))
+    ])
+  ].sort();
   document.querySelectorAll(".month-control").forEach((select) => {
     select.innerHTML = months
-      .map((month) => `<option value="${month}">${monthLabel(month)}</option>`)
+      .map((month) =>
+        `<option value="${month}">${monthLabel(month)}</option>`
+      )
       .join("");
+
     select.value = selectedMonth;
   });
 }
@@ -430,7 +260,7 @@ function renderTotals() {
     element.textContent = monthlyTransactions().filter((row) => row.type === "income").length;
   });
   document.querySelectorAll("[data-usage]").forEach((element) => {
-    element.textContent = `${usage.percentage.toFixed(1)}% ${language === "pt" ? "utilizado" : "used"}`;
+    element.textContent = usage.limit > 0 ? `${usage.percentage.toFixed(1)}% ${language === "pt" ? "utilizado" : "used"}` : t("No budget set");
   });
   document.querySelectorAll("[data-rate]").forEach((element) => {
     element.textContent = `${income > 0 ? ((calculateSavings() / income) * 100).toFixed(1) : "0.0"}% ${language === "pt" ? "de economia" : "rate"}`;
@@ -448,7 +278,7 @@ function renderTotals() {
   });
   document.querySelectorAll("[data-budget-status]").forEach((element) => {
     element.textContent = t(
-      usage.percentage > 100 ? "Over Budget" : usage.percentage >= 80 ? "Near Limit" : "On Track",
+      usage.limit <= 0 ? "No budget set" : usage.percentage > 100 ? "Over Budget" : usage.percentage >= 80 ? "Near Limit" : "On Track",
     );
   });
   document.querySelectorAll("[data-insights]").forEach((element) => {
@@ -538,13 +368,15 @@ function renderCategories() {
   }
   const budgetList = document.querySelector("#budget-categories");
   if (budgetList) {
+    const activeCount = document.querySelector("[data-active-budgets]");
+    if (activeCount) activeCount.textContent = `${entries.filter(([, limit]) => limit > 0).length} ${t("active budgets")}`;
     budgetList.innerHTML = entries
       .map(([category, limit]) => {
         const spent = spending[category] || 0;
-        const percentage = (spent / limit) * 100;
-        const over = spent > limit;
+        const percentage = limit > 0 ? (spent / limit) * 100 : 0;
+        const over = limit > 0 && spent > limit;
         const near = percentage >= 80;
-        return `<article class="card budget-category ${over ? "over-budget" : ""}"><div class="budget-category-header"><span class="category-symbol">${icon(categoryDetails[category].icon)}</span><div><h2>${t(categoryDetails[category].label)}</h2><small>${language === "pt" ? "Limite" : "Target"}: ${money(limit)}</small></div><div><span class="badge ${over ? "negative" : near ? "" : "positive"}">${t(over ? "⚠ Over Budget" : near ? "Near Limit" : "Normal Pace")}</span><strong class="${over ? "negative" : ""}">${money(spent)}</strong></div></div><div class="progress ${over ? "over" : ""}"><span style="width:${Math.min(100, percentage)}%"></span></div><div class="budget-foot ${over ? "negative" : ""}"><span>${Math.round(percentage)}% ${language === "pt" ? "utilizado" : "spent"}</span><span>${money(Math.abs(limit - spent))} ${language === "pt" ? (over ? "excedidos" : "restantes") : over ? "overrun" : "left"}</span></div></article>`;
+        return `<article class="card budget-category ${over ? "over-budget" : ""}"><div class="budget-category-header"><span class="category-symbol">${icon(categoryDetails[category].icon)}</span><div><h2>${t(categoryDetails[category].label)}</h2><small>${language === "pt" ? "Limite" : "Target"}: ${money(limit)}</small></div><div><span class="badge ${over ? "negative" : near ? "" : "positive"}">${t(limit <= 0 ? "No budget set" : over ? "⚠ Over Budget" : near ? "Near Limit" : "Normal Pace")}</span><strong class="${over ? "negative" : ""}">${money(spent)}</strong></div></div><div class="progress ${over ? "over" : ""}"><span style="width:${Math.min(100, percentage)}%"></span></div><div class="budget-foot ${over ? "negative" : ""}"><span>${limit > 0 ? `${Math.round(percentage)}% ${language === "pt" ? "utilizado" : "spent"}` : t("No budget set")}</span><span>${money(limit > 0 ? Math.abs(limit - spent) : 0)} ${language === "pt" ? (over ? "excedidos" : "restantes") : over ? "overrun" : "left"}</span></div><form class="budget-editor" data-budget-category="${category}"><label for="limit-${category}">${t("Monthly limit (R$)")}</label><div class="budget-editor-controls"><input id="limit-${category}" name="limit" type="number" min="0" max="999999999" step="0.01" value="${limit.toFixed(2)}" required inputmode="decimal"><button class="button primary" type="submit">${t("Save limit")}</button></div><p class="budget-error" role="status" aria-live="polite"></p></form></article>`;
       })
       .join("");
     const days = new Date(
@@ -555,35 +387,22 @@ function renderCategories() {
     document.querySelector("[data-daily-average]").textContent = money(total / days);
   }
 }
-const previousCashFlow = [
-  { label: "Oct", income: 2600, expenses: 1750 },
-  { label: "Nov", income: 2800, expenses: 1900 },
-  { label: "Dec", income: 3150, expenses: 2600 },
-  { label: "Jan", income: 2900, expenses: 2100 },
-  { label: "Feb", income: 3050, expenses: 2250 },
-  { label: "Mar", income: 2700, expenses: 2300 },
-  { label: "Apr", income: 2600, expenses: 2000 },
-  { label: "May", income: 2850, expenses: 2200 },
-  { label: "Jun", income: 3050, expenses: 1750 },
-  { label: "Jul", income: 2400, expenses: 2500 },
-  { label: "Aug", income: 2900, expenses: 2050 },
-];
 let chartPeriod = 6;
 function renderCashChart() {
   const chart = document.querySelector("#cash-chart");
   if (!chart) return;
-  const current = {
-    label: new Date(selectedMonth + "-01T12:00:00").toLocaleDateString(locale(), {
-      month: "short",
-    }),
-    income: calculateIncome(),
-    expenses: calculateExpenses(),
-  };
-  // Historical bars are illustrative; the last bar always uses the selected month's real totals.
-  const rows =
-    selectedMonth === DEFAULT_MONTH
-      ? [...previousCashFlow, current].slice(-chartPeriod)
-      : [current];
+  // All bars use real transactions, including months with no entries.
+  const endDate = new Date(selectedMonth + "-01T12:00:00");
+  const rows = Array.from({ length: chartPeriod }, (_, index) => {
+    const date = new Date(endDate.getFullYear(), endDate.getMonth() - chartPeriod + 1 + index, 1);
+    const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const entries = monthlyTransactions(month);
+    return {
+      label: date.toLocaleDateString(locale(), { month: "short", year: "2-digit" }),
+      income: calculateIncome(entries),
+      expenses: calculateExpenses(entries)
+    };
+  });
   const max = Math.max(1, ...rows.flatMap((row) => [row.income, row.expenses])) * 1.15;
   chart.innerHTML = `<div class="bar-chart">${rows.map((row) => `<div class="bar-group"><div class="chart-bar" style="height:${(row.income / max) * 100}%" title="${t(row.label)} ${t("Income")}: ${money(row.income)}"></div><div class="chart-bar expense" style="height:${(row.expenses / max) * 100}%" title="${t(row.label)} ${t("Expenses")}: ${money(row.expenses)}"></div></div>`).join("")}</div><div class="chart-labels">${rows.map((row) => `<span>${t(row.label)}</span>`).join("")}</div>`;
   chart.setAttribute(
@@ -597,6 +416,7 @@ function renderCashChart() {
   );
 }
 function renderPage() {
+  applyMonthlyBudget();
   renderTotals();
   renderRecent();
   renderTransactions();
@@ -622,6 +442,9 @@ function setupForm() {
   const initialType =
     new URLSearchParams(location.search).get("type") === "income" ? "income" : "expense";
   form.elements.type.value = initialType;
+  const today = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+  form.elements.date.defaultValue = today;
+  form.elements.date.value = today;
   renderCategoryOptions(initialType);
   form.addEventListener("change", (event) => {
     if (event.target.name === "type") renderCategoryOptions(event.target.value);
@@ -636,8 +459,9 @@ function setupForm() {
       document.querySelector("#form-error").textContent = "";
     }, 0);
   });
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (saving) return;
     const fields = new FormData(form);
     const amount = Number(fields.get("amount"));
     const name = fields.get("description").trim();
@@ -671,91 +495,187 @@ function setupForm() {
       paymentMethod: fields.get("paymentMethod"),
       notes: fields.get("notes").trim(),
     };
-    if (!saveTransactions([...transactions, row])) {
-      document.querySelector("#form-error").textContent = t(
-        "Your transaction could not be saved. Allow browser storage and try again.",
-      );
+    const submitButtons = form.querySelectorAll('[type="submit"]');
+    saving = true;
+    submitButtons.forEach((button) => { button.disabled = true; });
+    document.querySelector("#form-error").textContent = "";
+    try {
+      // Navigate only after the server confirms this individual transaction.
+      await salvarTransacao(row);
+      location.href = `transactions.html?saved=1&month=${encodeURIComponent(date.slice(0, 7))}`;
+    } catch (error) {
+      console.error(error);
+      document.querySelector("#form-error").textContent = t("Could not save to the cloud. Check your connection and try again.");
+    } finally {
+      saving = false;
+      submitButtons.forEach((button) => { button.disabled = false; });
+    }
+  });
+}
+function setupBudgetEditor() {
+  document.querySelector("#budget-categories")?.addEventListener("submit", async (event) => {
+    const form = event.target.closest("[data-budget-category]");
+    if (!form) return;
+    event.preventDefault();
+    if (savingBudget) return;
+    const category = form.dataset.budgetCategory;
+    const input = form.elements.limit;
+    const amount = input.value.trim() === "" ? NaN : Number(input.value);
+    const errorMessage = form.querySelector(".budget-error");
+    if (!form.checkValidity() || !Number.isFinite(amount) || amount < 0 || amount > 999999999) {
+      errorMessage.textContent = t("Enter a valid limit. Use zero for no budget.");
       return;
     }
+    const month = selectedMonth;
+    const uid = auth.currentUser?.uid;
+    const controls = document.querySelectorAll("#budget-categories input, #budget-categories button, .month-control, .language-control");
+    savingBudget = true;
+    controls.forEach((control) => { control.disabled = true; });
+    errorMessage.textContent = t("Saving…");
     try {
-      localStorage.setItem(MONTH_KEY, date.slice(0, 7));
-    } catch {
-      /* Transaction storage has already succeeded. */
+      await salvarLimite(month, category, amount);
+      if (auth.currentUser?.uid !== uid) return;
+      budgetsByMonth[month] ||= {};
+      budgetsByMonth[month][category] = Math.round(amount * 100) / 100;
+      updateMonthOptions();
+      renderPage();
+      showToast(t("Budget saved successfully."));
+    } catch (error) {
+      console.error(error);
+      errorMessage.textContent = t("Could not save the budget. Check your connection and try again.");
+    } finally {
+      savingBudget = false;
+      controls.forEach((control) => { control.disabled = false; });
     }
-    location.href = "transactions.html?saved=1";
   });
 }
-updateMonthOptions();
-renderPage();
-setupForm();
-setupLanguage();
-document.querySelectorAll(".month-control").forEach((select) =>
-  select.addEventListener("change", (event) => {
-    selectedMonth = event.target.value;
-    try {
-      localStorage.setItem(MONTH_KEY, selectedMonth);
-    } catch {
-      showToast(t("Month selection cannot be saved in this browser."));
-    }
-    updateMonthOptions();
-    renderPage();
-  }),
-);
-document.querySelector("#search")?.addEventListener("input", (event) => {
-  searchTerm = event.target.value.toLowerCase().trim();
-  renderTransactions();
-});
-document.querySelectorAll("[data-filter]").forEach((button) => {
-  button.setAttribute("aria-pressed", button.dataset.filter === activeFilter);
-  button.addEventListener("click", () => {
-    activeFilter = button.dataset.filter;
-    document.querySelectorAll("[data-filter]").forEach((item) => {
-      const active = item === button;
-      item.classList.toggle("active", active);
-      item.setAttribute("aria-pressed", active);
-    });
+
+function setupInteractions() {
+  updateMonthOptions();
+  renderPage();
+  setupForm();
+  setupBudgetEditor();
+  setupLanguage({ updateMonthOptions, renderPage, renderCategoryOptions, categoryDetails });
+  document.querySelectorAll(".month-control").forEach((select) =>
+    select.addEventListener("change", (event) => {
+      selectedMonth = event.target.value;
+      updateMonthOptions();
+      renderPage();
+    }),
+  );
+  document.querySelector("#search")?.addEventListener("input", (event) => {
+    searchTerm = event.target.value.toLowerCase().trim();
     renderTransactions();
   });
-});
-document.querySelectorAll("[data-period]").forEach((button) => {
-  button.setAttribute("aria-pressed", Number(button.dataset.period) === chartPeriod);
-  button.addEventListener("click", () => {
-    chartPeriod = Number(button.dataset.period);
-    document.querySelectorAll("[data-period]").forEach((item) => {
-      const active = item === button;
-      item.classList.toggle("active", active);
-      item.setAttribute("aria-pressed", active);
+  document.querySelectorAll("[data-filter]").forEach((button) => {
+    button.setAttribute("aria-pressed", button.dataset.filter === activeFilter);
+    button.addEventListener("click", () => {
+      activeFilter = button.dataset.filter;
+      document.querySelectorAll("[data-filter]").forEach((item) => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", active);
+      });
+      renderTransactions();
     });
-    renderCashChart();
   });
-});
-document.addEventListener("click", (event) => {
-  const soon = event.target.closest("[data-soon]");
-  if (soon) {
-    event.preventDefault();
-    showToast(t("Coming soon — planned for a future version."));
-  }
-  const deleteButton = event.target.closest("[data-delete]");
-  if (deleteButton) {
+  document.querySelectorAll("[data-period]").forEach((button) => {
+    button.setAttribute("aria-pressed", Number(button.dataset.period) === chartPeriod);
+    button.addEventListener("click", () => {
+      chartPeriod = Number(button.dataset.period);
+      document.querySelectorAll("[data-period]").forEach((item) => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", active);
+      });
+      renderCashChart();
+    });
+  });
+  document.addEventListener("click", async (event) => {
+    const soon = event.target.closest("[data-soon]");
+    if (soon) {
+      event.preventDefault();
+      showToast(t("Coming soon — planned for a future version."));
+    }
+    const deleteButton = event.target.closest("[data-delete]");
+    if (!deleteButton || deleteButton.disabled) return;
     const row = transactions.find((item) => item.id === deleteButton.dataset.delete);
-    if (
-      row &&
-      window.confirm(
-        `${language === "pt" ? "Excluir" : "Delete"} "${row.name}" (${money(row.amount)})?`,
-      ) &&
-      saveTransactions(transactions.filter((item) => item.id !== row.id))
-    ) {
+    if (!row || !window.confirm(`${language === "pt" ? "Excluir" : "Delete"} "${row.name}" (${money(row.amount)})?`)) return;
+    deleteButton.disabled = true;
+    try {
+      await excluirTransacao(row.id);
+      transactions = transactions.filter((item) => item.id !== row.id);
       renderPage();
       showToast(t("Transaction deleted."));
+    } catch (error) {
+      console.error(error);
+      showToast(t("Could not delete. Check your connection and try again."));
+      deleteButton.disabled = false;
     }
+  });
+  document.querySelector("#signout")?.addEventListener("click", async (event) => {
+    event.currentTarget.disabled = true;
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error(error);
+      showToast(t("Could not sign out. Try again."));
+      document.querySelector("#signout").disabled = false;
+    }
+  });
+  if (new URLSearchParams(location.search).has("saved")) {
+    showToast(t("Transaction saved successfully."));
+    history.replaceState(null, "", location.pathname);
   }
-});
-document.querySelector("#reset-demo")?.addEventListener("click", resetTransactions);
-if (new URLSearchParams(location.search).has("saved")) {
-  showToast(t("Transaction saved successfully."));
-  history.replaceState(null, "", location.pathname);
 }
-if (!storageAvailable)
-  showToast(
-    t("Browser storage is unavailable. Demo data is shown; saving requires storage access."),
-  );
+
+function renderAccount() {
+  document.querySelectorAll(".user-name").forEach((element) => {
+    element.textContent = currentUser.displayName || t("Your account");
+  });
+  document.querySelectorAll(".avatar").forEach((element) => {
+    element.textContent = (currentUser.displayName || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((name) => name[0]).join("");
+  });
+  const greeting = document.querySelector("[data-greeting]");
+  if (greeting) greeting.textContent = `${t("Hello")}, ${currentUser.displayName?.split(" ")[0] || t("Your account")}!`;
+}
+
+async function startApp() {
+  try {
+    // Firebase restores the session before any financial data is requested.
+    await auth.authStateReady();
+    currentUser = auth.currentUser;
+    if (!currentUser) {
+      location.replace("login.html");
+      return;
+    }
+    const uid = currentUser.uid;
+    onAuthStateChanged(auth, (user) => {
+      if (user?.uid === uid) return;
+      transactions = [];
+      budgetsByMonth = {};
+      document.body.dataset.session = "loading";
+      location.replace("login.html");
+    });
+    const [loaded, loadedBudgets] = await Promise.all([carregarTransacoes(), carregarOrcamentos()]);
+    if (auth.currentUser?.uid !== uid) return;
+    if (!loaded.every(isValidTransaction)) {
+      throw new Error("Invalid transaction data in Firestore");
+    }
+    transactions = loaded;
+    budgetsByMonth = loadedBudgets;
+    const requestedMonth = new URLSearchParams(location.search).get("month");
+    if (/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth || "")) selectedMonth = requestedMonth;
+    setupInteractions();
+    renderAccount();
+    document.querySelectorAll(".language-control").forEach((select) => select.addEventListener("change", renderAccount));
+    document.body.dataset.session = "ready";
+    document.body.setAttribute("aria-busy", "false");
+  } catch (error) {
+    console.error(error);
+    document.querySelector("#session-message").textContent = t("Could not load your data. Check your connection and reload the page.");
+    document.body.setAttribute("aria-busy", "false");
+  }
+}
+
+startApp();
