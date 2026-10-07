@@ -2,13 +2,17 @@
 
 Money+ is a responsive personal finance tracker built with HTML, CSS and Vanilla JavaScript.
 
+## Continue this project
+
+Read the [complete handoff in Portuguese](docs/CONTINUIDADE.md) for the current implementation, Firebase setup, design assets, test evidence, pending work and the learning workflow. It includes a ready-to-copy prompt for a new chat.
+
 ## Run
 
 Use VS Code Live Server and open `login.html`. ES modules require an HTTP server. No framework or build step is needed. Internet access is required for Firebase login and financial data.
 
 ## Portfolio Project
 
-Money+ was created as a front-end portfolio project focused on responsive interface development, DOM manipulation, financial calculations, localStorage persistence and accessible UI using Vanilla JavaScript.
+Money+ is a front-end portfolio project focused on responsive interfaces, DOM manipulation, financial calculations and private Firebase persistence using Vanilla JavaScript. Only the language preference uses localStorage.
 
 ## Features
 
@@ -30,13 +34,25 @@ HTML5 · CSS3 · Vanilla JavaScript modules · Firebase Authentication · Cloud 
 
 ```
 index.html
+login.html
 transactions.html
 add-transaction.html
 budget.html
 css/style.css
+css/login.css
 js/app.js
 js/i18n.js
-assets/favicon.svg
+js/firebase-config.js
+js/login.js
+js/transactions-store.js
+js/budgets-store.js
+js/settings-store.js
+js/csv-export.js
+assets/money-plus.png
+docs/CONTINUIDADE.md
+docs/exportacao-csv.md
+firestore.rules
+tests/
 ```
 
 `app.js` contains the shared dataset, named calculation functions, rendering functions and form handlers. CSS is organized into design tokens, page styles and responsive rules.
@@ -73,4 +89,10 @@ https://johntfut02.github.io/money-plus/
 - Goals
 - Credit cards
 - Recurring payments
-- React version
+- Transaction editing
+- Dedicated analysis page
+- Stronger server-side document validation
+
+## Tests
+
+Run `node tests/account-flows.test.cjs` and `node tests/csv-export.test.mjs`. The account suite uses simulated Firebase/DOM; it does not exercise deployed Firestore rules. `firestore.rules` is a reference copy and is not deployed by GitHub Pages. See the handoff for the live tests already reported by the user and remaining checks.
