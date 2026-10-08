@@ -935,6 +935,12 @@ main {
   height: 46px;
   flex-basis: 46px;
 }
+.transaction-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.edit-button,
 .delete-button {
   border: 0;
   background: none;
@@ -942,12 +948,22 @@ main {
   padding: 9px;
   display: flex;
 }
+.edit-button i,
 .delete-button i {
   width: 16px;
   height: 16px;
 }
 .delete-button:hover {
   color: var(--negative);
+}
+.edit-button:hover {
+  color: var(--gold);
+}
+.edit-button:focus-visible,
+.delete-button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 .centered {
   text-align: center;
@@ -1861,9 +1877,14 @@ body[data-page="add-transaction"] main {
   .transaction-group .transaction-amount {
     font-size: 13px;
   }
-  .delete-button {
-    padding: 6px;
+  .transaction-actions {
+    flex-direction: column;
   }
+  .edit-button,
+  .delete-button {
+    padding: 8px;
+  }
+  .edit-button i,
   .delete-button i {
     width: 14px;
     height: 14px;

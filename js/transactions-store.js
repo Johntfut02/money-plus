@@ -10,6 +10,7 @@ import {
   doc,
   getDocsFromServer,
   setDoc,
+  updateDoc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
@@ -41,6 +42,16 @@ export async function carregarTransacoes() {
 export async function salvarTransacao(transacao) {
   const referencia = doc(minhasTransacoes(), transacao.id);
   await setDoc(referencia, transacao);
+}
+
+// Atualiza o documento existente; uma transação excluída não é recriada.
+export async function atualizarTransacao(transacao, expectedUid) {
+  if (!expectedUid || auth.currentUser?.uid !== expectedUid) {
+    throw new Error("A conta mudou. Entre novamente antes de editar.");
+  }
+  const referencia = doc(minhasTransacoes(), transacao.id);
+  const { name, type, amount, category, date, paymentMethod, notes } = transacao;
+  await updateDoc(referencia, { name, type, amount, category, date, paymentMethod, notes });
 }
 
 // Exclui somente a transação indicada.

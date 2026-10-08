@@ -1,6 +1,6 @@
 # Money+ — documento completo de continuidade
 
-Atualizado em **6 de outubro de 2026**, horário de São Paulo. Este documento permite continuar o projeto em uma conversa nova, sem acesso à conversa local anterior. Ele registra implementação, decisões, preferências do usuário, referências e pendências. Não é uma solicitação para implementar tudo de uma vez: confirme o escopo da próxima etapa com João.
+Atualizado em **8 de outubro de 2026**, horário de São Paulo. Este documento permite continuar o projeto em uma conversa nova, sem acesso à conversa local anterior. Ele registra implementação, decisões, preferências do usuário, referências e pendências. Não é uma solicitação para implementar tudo de uma vez: confirme o escopo da próxima etapa com João.
 
 ## 1. Objetivo e modo de colaboração
 
@@ -50,7 +50,7 @@ Ao retomar, consultar a versão atual de `main`, o estado do Git e os commits re
 - Login Google com Firebase Authentication, restauração da sessão e botão Sair.
 - Páginas financeiras exigem login. O conteúdo aguarda a sessão e a leitura dos dados; falha de carregamento apresenta mensagem e opção de tentar novamente.
 - Nova conta começa vazia, sem importar dados demonstrativos do navegador.
-- Transações: adicionar receita/despesa, listar, buscar, filtrar, agrupar por data e excluir com confirmação.
+- Transações: adicionar receita/despesa, listar, buscar, filtrar, agrupar por data, editar pelo lápis e excluir com confirmação. A edição mantém o ID, retorna ao mês salvo e preserva a entrada em caso de falha. Veja [edicao-transacoes.md](edicao-transacoes.md).
 - Gravação/exclusão só mostra sucesso após confirmação do Firebase. Falhas preservam a entrada ou a transação; controles evitam envio duplicado.
 - Painel com receitas, despesas, economia e saldo disponível calculados. Gráfico de fluxo de caixa e distribuição por categoria usam os lançamentos reais.
 - Mês atual automático conforme a data local do dispositivo; próximos 12 meses disponíveis. Meses históricos com transações/orçamentos e o mês selecionado também são preservados.
@@ -65,7 +65,7 @@ Ao retomar, consultar a versão atual de `main`, o estado do Git e os commits re
 
 Não apresentar todos os itens do menu como implementados. Contas/recorrências, metas, cartões, a área dedicada de análises, notificações e configurações gerais ainda têm links/controles de funcionalidade futura (`data-soon`). Há cálculos e insights no painel/orçamentos, mas não uma página completa de análises.
 
-Ainda falta edição de transações na interface. Não há integração bancária, pagamento de contas, análise com IA, importação CSV, anexo de comprovantes, PWA/offline ou sincronização contínua em tempo real. Os dados são carregados do servidor ao abrir a página; alterações em outro dispositivo precisam de atualização da página para aparecer.
+A edição foi implementada em 8/10; a aceitação no Firebase real ainda depende do teste de João. Não há integração bancária, pagamento de contas, análise com IA, importação CSV, anexo de comprovantes, PWA/offline ou sincronização contínua em tempo real. Os dados são carregados do servidor ao abrir a página; alterações em outro dispositivo precisam de atualização da página para aparecer.
 
 A proteção atual das regras restringe acesso por UID, mas não valida completamente o formato de cada documento no servidor. A validação de campos e valores no JavaScript não substitui essa validação nas regras. Revisar isso antes de ampliar o uso. Não afirmar que existe auditoria de segurança completa.
 
@@ -170,6 +170,8 @@ node tests/account-flows.test.cjs
 node tests/csv-export.test.mjs
 ```
 
+O teste de contas também cobre edição (preenchimento, restauração, mesmo ID, mudança de tipo/mês, falhas, envio repetido e troca de conta). A implementação de 8/10 mantém a conferência real pendente.
+
 O teste de contas simula Firebase e DOM com Node VM: sessão, troca de conta, carregamento com erro, cálculos/mês, idioma, confirmação de salvar/excluir, falha e envio duplicado, orçamentos, saldo com data e caminhos por UID. Não é um teste das regras reais no servidor e não substitui navegador/dispositivos reais.
 
 O teste CSV cobre mês, ordem, acentos, aspas, quebras de linha, decimais, despesas negativas e texto que parece fórmula. Também houve conferência das sete colunas por um parser independente de CSV. Na prévia local o botão acionou a geração, houve mensagem de download iniciado e o mês vazio apresentou mensagem adequada. A captura automática do arquivo baixado no navegador integrado não concluiu dentro do tempo de espera. **Não afirmar que o arquivo foi aberto e validado no Microsoft Excel ou que João confirmou o CSV real**; esse teste manual ainda é útil ao retomar.
@@ -180,7 +182,7 @@ As capturas da prévia usam dados fictícios. A confirmação de UID em simulaç
 
 João considera acelerar a implementação com o assistente e depois revisar/aprender. Ele pediu opinião sobre fechar o projeto para portfólio, funcionalidades de análise e custo de hospedagem. A recomendação apresentada foi:
 
-1. Fechar uma V1 com escopo limitado: revisar fluxos, adicionar edição de transações, tratar erros e estados vazios e deixar claro o que ainda está em desenvolvimento.
+1. Fechar uma V1 com escopo limitado: revisar fluxos, validar a edição implementada de transações, tratar erros e estados vazios e deixar claro o que ainda está em desenvolvimento.
 2. Revisar validação no servidor e isolamento antes de ampliar testadores.
 3. Usar análises por regras e números na V1; adiar IA generativa. Isso facilita explicação e previsibilidade. A escolha final precisa ser discutida.
 4. Atualizar README/apresentação, imagens recentes e uma demonstração curta. Ser transparente sobre ajuda de IA; aprender a explicar a arquitetura e modificar pequenos trechos sozinho.

@@ -2,7 +2,7 @@ import { carregarSaldoInicial, salvarSaldoInicial, validOpening } from "./settin
 import { transactionsCSV, downloadCSV } from "./csv-export.js";
 /* Money+ — calculations and page interactions, with private Firestore data. */
 import { app } from "./firebase-config.js";
-import { carregarTransacoes, salvarTransacao, excluirTransacao } from "./transactions-store.js";
+import { carregarTransacoes, salvarTransacao, atualizarTransacao, excluirTransacao } from "./transactions-store.js";
 import { carregarOrcamentos, salvarLimite } from "./budgets-store.js";
 import { language, t, locale, setupLanguage } from "./i18n.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
@@ -61,6 +61,7 @@ const icons = {
   car: '<path d="m5 5-2 6v8h3v-3h12v3h3v-8l-2-6zm-2 6h18M6 13h2m8 0h2"/>',
   bag: '<rect x="4" y="7" width="16" height="15" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/>',
   trash: '<path d="M3 6h18M9 3h6m-9 3 1 15h10l1-15M10 10v7m4-7v7"/>',
+  edit: '<path d="m15 4 5 5M4 20l4-1L21 6l-5-5L3 14z"/>',
   reset: '<path d="M3 10a9 9 0 1 1 1 8M3 4v6h6m3-4v6l4 3"/>',
   check: '<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>',
   left: '<path d="m15 4-8 8 8 8"/>',
@@ -296,10 +297,33 @@ function renderTotals() {
     element.textContent = t(calculateSavings() >= 0 ? "Balanced" : "Deficit");
   });
 }
-function transactionRow(row, allowDelete = false) {
+function transactionRow(row, allowActions = false) {
   const category = categoryDetails[row.category];
-  return `<div class="transaction-row"><span class="transaction-icon ${row.type}">${icon(category.icon)}</span><div class="transaction-info"><strong title="${escapeHTML(row.id.startsWith("demo-") ? t(row.name) : row.name)}">${escapeHTML(row.id.startsWith("demo-") ? t(row.name) : row.name)}</strong><small>${escapeHTML(t(category.label))} · ${allowDelete ? escapeHTML(t(row.paymentMethod)) : shortDate(row.date)}</small></div><div class="transaction-amount ${row.type === "income" ? "positive" : allowDelete ? "negative" : ""}">${row.type === "income" ? "+" : "-"} ${money(row.amount)}<small class="muted">${allowDelete ? "" : escapeHTML(t(row.paymentMethod))}</small></div>${allowDelete ? `<button class="delete-button" data-delete="${escapeHTML(row.id)}" aria-label="${language === "pt" ? "Excluir" : "Delete"} ${escapeHTML(row.id.startsWith("demo-") ? t(row.name) : row.name)}">${icon("trash")}</button>` : ""}</div>`;
+  const name = escapeHTML(row.id.startsWith("demo-") ? t(row.name) : row.name);
+  const details = allowActions ? escapeHTML(t(row.paymentMethod)) : shortDate(row.date);
+  const amountClass = row.type === "income" ? "positive" : allowActions ? "negative" : "";
+  const actions = allowActions ? `
+    <div class="transaction-actions">
+      <a class="edit-button"
+         href="add-transaction.html?edit=${encodeURIComponent(row.id)}&amp;month=${encodeURIComponent(selectedMonth)}"
+         aria-label="${t("Edit")} ${name}" title="${t("Edit")}">${icon("edit")}</a>
+      <button type="button" class="delete-button" data-delete="${escapeHTML(row.id)}"
+              aria-label="${language === "pt" ? "Excluir" : "Delete"} ${name}">${icon("trash")}</button>
+    </div>` : "";
+  return `<div class="transaction-row">
+    <span class="transaction-icon ${row.type}">${icon(category.icon)}</span>
+    <div class="transaction-info">
+      <strong title="${name}">${name}</strong>
+      <small>${escapeHTML(t(category.label))} · ${details}</small>
+    </div>
+    <div class="transaction-amount ${amountClass}">
+      ${row.type === "income" ? "+" : "-"} ${money(row.amount)}
+      <small class="muted">${allowActions ? "" : escapeHTML(t(row.paymentMethod))}</small>
+    </div>
+    ${actions}
+  </div>`;
 }
+
 function sortedTransactions(rows) {
   return [...rows].sort((a, b) => b.date.localeCompare(a.date));
 }
@@ -439,82 +463,149 @@ function renderCategoryOptions(type) {
     categoryDetails[categories[0]].label,
   );
 }
+function validTransactionDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return false;
+  const date = new Date(value + "T12:00:00");
+  return Number.isFinite(date.getTime()) &&
+    date.getFullYear() === Number(value.slice(0, 4)) &&
+    date.getMonth() + 1 === Number(value.slice(5, 7)) &&
+    date.getDate() === Number(value.slice(8, 10));
+}
+
 function setupForm() {
   const form = document.querySelector("#transaction-form");
   if (!form) return;
-  const initialType =
-    new URLSearchParams(location.search).get("type") === "income" ? "income" : "expense";
-  form.elements.type.value = initialType;
+  const params = new URLSearchParams(location.search);
+  const isEditing = params.has("edit");
+  // A edição mantém o ID do documento carregado da conta atual.
+  const original = isEditing
+    ? transactions.find((row) => row.id === params.get("edit"))
+    : null;
+  const formUid = currentUser.uid;
+  const initialType = original?.type || (params.get("type") === "income" ? "income" : "expense");
   const today = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+  const errorMessage = document.querySelector("#form-error");
+  const controls = form.querySelectorAll("input, select, textarea, button");
+
+  if (isEditing) {
+    document.title = "Edit Transaction | Money+";
+    [
+      ["#form-title", "Edit Transaction"],
+      ["#form-eyebrow", "EDIT TRANSACTION"],
+      ["#form-submit-label", "Save Changes"],
+      ['#transaction-form [type="reset"] [data-i18n]', "Restore original"],
+    ].forEach(([selector, key]) => {
+      const element = document.querySelector(selector);
+      if (element) {
+        element.dataset.i18n = key;
+        element.textContent = t(key);
+      }
+    });
+    const returnLink = document.querySelector(".cancel-link");
+    const backLink = document.querySelector(".back-link");
+    const returnUrl = `transactions.html?month=${encodeURIComponent(selectedMonth)}`;
+    if (returnLink) returnLink.href = returnUrl;
+    if (backLink) backLink.href = returnUrl;
+    if (!original) {
+      // Nunca transforma uma edição inválida em um novo lançamento.
+      const key = "Transaction not found. Return to the list and choose another entry.";
+      errorMessage.dataset.i18n = key;
+      errorMessage.textContent = t(key);
+      controls.forEach((control) => { control.disabled = true; });
+      form.addEventListener("submit", (event) => event.preventDefault());
+      return;
+    }
+  }
+
+  function restoreOriginal() {
+    form.elements.type.value = original.type;
+    renderCategoryOptions(original.type);
+    form.elements.category.value = original.category;
+    form.elements.amount.value = original.amount.toFixed(2);
+    form.elements.description.value = original.name;
+    form.elements.date.value = original.date;
+    form.elements.paymentMethod.value = original.paymentMethod;
+    form.elements.notes.value = original.notes || "";
+    document.querySelector("#category-selected").textContent = t(categoryDetails[original.category].label);
+  }
+
+  form.elements.type.value = initialType;
   form.elements.date.defaultValue = today;
   form.elements.date.value = today;
   renderCategoryOptions(initialType);
+  if (original) restoreOriginal();
+
   form.addEventListener("change", (event) => {
     if (event.target.name === "type") renderCategoryOptions(event.target.value);
     if (event.target.name === "category")
-      document.querySelector("#category-selected").textContent = t(
-        categoryDetails[event.target.value].label,
-      );
+      document.querySelector("#category-selected").textContent = t(categoryDetails[event.target.value].label);
   });
-  form.addEventListener("reset", () => {
+  form.addEventListener("reset", (event) => {
+    if (isEditing || saving) {
+      event.preventDefault();
+      if (!saving) restoreOriginal();
+      errorMessage.textContent = "";
+      return;
+    }
     setTimeout(() => {
+      form.elements.type.value = "expense";
       renderCategoryOptions("expense");
-      document.querySelector("#form-error").textContent = "";
+      errorMessage.textContent = "";
     }, 0);
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (saving) return;
+    if (saving || auth.currentUser?.uid !== formUid) return;
     const fields = new FormData(form);
     const amount = Number(fields.get("amount"));
-    const name = fields.get("description").trim();
+    const name = (fields.get("description") || "").trim();
     const date = fields.get("date");
     const type = fields.get("type");
     const category = fields.get("category");
+    const paymentMethod = fields.get("paymentMethod");
+    const notes = (fields.get("notes") || "").trim();
     if (
-      !name ||
-      !Number.isFinite(amount) ||
-      amount < 0.01 ||
-      amount > 999999999 ||
-      !date ||
-      !(category in categoryDetails) ||
+      !name || name.length > 100 || notes.length > 500 ||
+      !Number.isFinite(amount) || amount < 0.01 || amount > 999999999 ||
+      !validTransactionDate(date) || !["income", "expense"].includes(type) ||
+      !Object.hasOwn(categoryDetails, category) ||
       (type === "income" && category !== "Income") ||
-      (type === "expense" && category === "Income")
+      (type === "expense" && category === "Income") ||
+      !["Pix", "Credit Card", "Debit Card", "Bank Transfer", "Cash"].includes(paymentMethod)
     ) {
-      document.querySelector("#form-error").textContent = t(
-        "Enter a description, valid amount, category and date.",
-      );
+      errorMessage.textContent = t("Enter a description, valid amount, category and date.");
       return;
     }
     const row = {
-      id:
-        globalThis.crypto?.randomUUID?.() ||
+      id: original?.id || globalThis.crypto?.randomUUID?.() ||
         `tx-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      name,
-      type,
-      amount: Math.round(amount * 100) / 100,
-      category,
-      date,
-      paymentMethod: fields.get("paymentMethod"),
-      notes: fields.get("notes").trim(),
+      name, type, amount: Math.round(amount * 100) / 100, category, date, paymentMethod, notes,
     };
-    const submitButtons = form.querySelectorAll('[type="submit"]');
     saving = true;
-    submitButtons.forEach((button) => { button.disabled = true; });
-    document.querySelector("#form-error").textContent = "";
+    const controls = form.querySelectorAll("input, select, textarea, button");
+    // Bloqueia os campos depois de ler o formulário para evitar alterações durante o envio.
+    controls.forEach((control) => { control.disabled = true; });
+    errorMessage.textContent = "";
     try {
-      // Navigate only after the server confirms this individual transaction.
-      await salvarTransacao(row);
-      location.href = `transactions.html?saved=1&month=${encodeURIComponent(date.slice(0, 7))}`;
+      if (isEditing) await atualizarTransacao(row, formUid);
+      else await salvarTransacao(row);
+      if (auth.currentUser?.uid !== formUid) return;
+      if (isEditing) transactions = transactions.map((item) => item.id === row.id ? row : item);
+      // Volta ao mês da data salva; não cria uma cópia no mês anterior.
+      location.href = `transactions.html?saved=${isEditing ? "updated" : "1"}&month=${encodeURIComponent(date.slice(0, 7))}`;
     } catch (error) {
       console.error(error);
-      document.querySelector("#form-error").textContent = t("Could not save to the cloud. Check your connection and try again.");
+      if (auth.currentUser?.uid !== formUid) return;
+      errorMessage.textContent = t(error.code === "not-found"
+        ? "This transaction no longer exists. Your changes were not saved."
+        : "Could not save to the cloud. Check your connection and try again.");
     } finally {
       saving = false;
-      submitButtons.forEach((button) => { button.disabled = false; });
+      controls.forEach((control) => { control.disabled = false; });
     }
   });
 }
+
 function setupBudgetEditor() {
   document.querySelector("#budget-categories")?.addEventListener("submit", async (event) => {
     const form = event.target.closest("[data-budget-category]");
@@ -674,8 +765,10 @@ function setupInteractions() {
     }
   });
   if (new URLSearchParams(location.search).has("saved")) {
-    showToast(t("Transaction saved successfully."));
-    history.replaceState(null, "", location.pathname);
+    showToast(t(new URLSearchParams(location.search).get("saved") === "updated"
+      ? "Transaction updated successfully."
+      : "Transaction saved successfully."));
+    history.replaceState(null, "", `${location.pathname}?month=${encodeURIComponent(selectedMonth)}`);
   }
 }
 

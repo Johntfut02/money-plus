@@ -18,7 +18,7 @@ Money+ is a front-end portfolio project focused on responsive interfaces, DOM ma
 
 - Native Portuguese/English selector with a saved browser preference
 - Responsive dashboard with desktop sidebar and mobile bottom navigation
-- Transaction tracking: search, income/expense filters, add and delete with confirmation
+- Transaction tracking: search, income/expense filters, add, edit and delete with confirmation
 - Income, expense, balance and savings calculations
 - Category budgets and explicit over-budget labels
 - Google login and private Firestore transactions per UID
@@ -61,6 +61,8 @@ tests/
 
 Transactions are stored under `users/{uid}/transactions/{transactionId}`. Pages wait for authentication and a server read before displaying financial data. Save and delete success is shown only after server acknowledgement. Existing browser demo data is not imported or erased.
 
+The pencil action opens the existing form with the transaction's saved fields. Editing keeps the document ID, waits for server acknowledgement and returns to the saved date's month. Failed edits preserve the input; a transaction deleted elsewhere is not recreated. See the [editing guide](docs/edicao-transacoes.md).
+
 New accounts start with no transactions and an opening balance of zero. Months include the current local month, the next 12 months and months with saved transactions. Charts use real data. Currency is BRL. Monthly category budget limits start at zero and can be edited on the Budget page. They are stored privately under `users/{uid}/budgets/{YYYY-MM}`, with category amounts in `limits`. Zero means no limit is configured; saving one category preserves the others. Upcoming payments are a future feature. Language preference alone is saved in localStorage.
 
 The Firebase project must enable Google sign-in and authorize the host (localhost/127.0.0.1 for local testing and johntfut02.github.io for the published site). Firestore rules must require `request.auth != null && request.auth.uid == userId` for documents and subcollections under `users/{userId}`. Client validation does not replace server-side field validation in future rules.
@@ -89,7 +91,6 @@ https://johntfut02.github.io/money-plus/
 - Goals
 - Credit cards
 - Recurring payments
-- Transaction editing
 - Dedicated analysis page
 - Stronger server-side document validation
 

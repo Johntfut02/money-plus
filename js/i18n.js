@@ -8,6 +8,14 @@ try {
   /* Use the browser language when storage is unavailable. */
 }
 const portuguese = {
+  "Edit": "Editar",
+  "Edit Transaction": "Editar transação",
+  "EDIT TRANSACTION": "EDITAR TRANSAÇÃO",
+  "Save Changes": "Salvar alterações",
+  "Restore original": "Restaurar original",
+  "Transaction updated successfully.": "Transação atualizada com sucesso.",
+  "Transaction not found. Return to the list and choose another entry.": "Transação não encontrada. Volte à lista e escolha outro lançamento.",
+  "This transaction no longer exists. Your changes were not saved.": "Esta transação não existe mais. Suas alterações não foram salvas.",
   "Export CSV": "Exportar CSV",
   "Export includes all transactions from the selected month, regardless of search or type filters.": "A exportação inclui todas as transações do mês selecionado, independentemente da busca ou dos filtros de tipo.",
   "No transactions to export for this month.": "Não há transações para exportar neste mês.",
@@ -259,7 +267,7 @@ export function setupLanguage({ updateMonthOptions, renderPage, renderCategoryOp
       updateMonthOptions();
       renderPage();
       const form = document.querySelector("#transaction-form");
-      if (form) {
+      if (form && form.elements.category) {
         const selectedCategory = form.elements.category.value;
         renderCategoryOptions(form.elements.type.value);
         form.elements.category.value = selectedCategory;
