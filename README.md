@@ -97,3 +97,5 @@ https://johntfut02.github.io/money-plus/
 ## Tests
 
 Run `node tests/account-flows.test.cjs` and `node tests/csv-export.test.mjs`. The account suite uses simulated Firebase/DOM; it does not exercise deployed Firestore rules. `firestore.rules` is a reference copy and is not deployed by GitHub Pages. See the handoff for the live tests already reported by the user and remaining checks.
+
+Candidate server validation is in `firestore-v1.rules`. The **Firestore rules tests** workflow compiles and exercises it in the Firestore emulator with a demo project; it never deploys to production. The candidate still requires a passing workflow, compatibility checks and manual Firebase deployment. See [data protection](docs/protecao-dados.md).

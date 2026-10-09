@@ -1,0 +1,90 @@
+// CANDIDATA V1: ainda precisa passar pelo emulador antes de aplicação no Console.
+// firestore.rules conserva a referência anterior. GitHub Pages não publica regras.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owns(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function validAmount(value, minimum) {
+      return value is number && value >= minimum && value <= 999999999
+        && value == math.round(value * 100.0) / 100.0;
+    }
+
+    function validDay(year, month, day) {
+      let leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+      let maximum = month == 2 ? (leap ? 29 : 28)
+        : (month in [4, 6, 9, 11] ? 30 : 31);
+      return year >= 1 && day >= 1 && day <= maximum;
+    }
+
+    function validDate(value) {
+      return value is string
+        && value.matches('[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])')
+        && validDay(int(value[0:4]), int(value[5:7]), int(value[8:10]));
+    }
+
+    function validTransaction(data, transactionId) {
+      return data.keys().hasAll([
+          'id', 'name', 'type', 'amount', 'category', 'date', 'paymentMethod'
+        ])
+        && data.keys().hasOnly([
+          'id', 'name', 'type', 'amount', 'category', 'date', 'paymentMethod', 'notes'
+        ])
+        && data.id is string && data.id == transactionId
+        && data.name is string && data.name.trim().size() > 0 && data.name.size() <= 100
+        && data.type in ['income', 'expense']
+        && validAmount(data.amount, 0.01)
+        && validDate(data.date)
+        && ((data.type == 'income' && data.category == 'Income')
+          || (data.type == 'expense' && data.category in [
+            'Housing', 'Food', 'Transportation', 'Entertainment', 'Subscriptions', 'Shopping'
+          ]))
+        && data.paymentMethod in ['Pix', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Cash']
+        && data.get('notes', '') is string && data.get('notes', '').size() <= 500;
+    }
+
+    function validBudget(data, month) {
+      return month.matches('[0-9]{4}-(0[1-9]|1[0-2])')
+        && data.keys().hasAll(['limits']) && data.keys().hasOnly(['limits'])
+        && data.limits is map
+        && data.limits.keys().hasOnly([
+          'Housing', 'Food', 'Transportation', 'Entertainment', 'Subscriptions', 'Shopping'
+        ])
+        && validAmount(data.limits.get('Housing', 0), 0)
+        && validAmount(data.limits.get('Food', 0), 0)
+        && validAmount(data.limits.get('Transportation', 0), 0)
+        && validAmount(data.limits.get('Entertainment', 0), 0)
+        && validAmount(data.limits.get('Subscriptions', 0), 0)
+        && validAmount(data.limits.get('Shopping', 0), 0);
+    }
+
+    function validFinance(data) {
+      return data.keys().hasAll(['openingBalance', 'openingDate'])
+        && data.keys().hasOnly(['openingBalance', 'openingDate'])
+        && data.openingBalance is number
+        && data.openingBalance >= -999999999 && data.openingBalance <= 999999999
+        && data.openingBalance == math.round(data.openingBalance * 100.0) / 100.0
+        && validDate(data.openingDate) && int(data.openingDate[0:4]) >= 1900;
+    }
+
+    match /users/{userId}/transactions/{transactionId} {
+      allow read, delete: if owns(userId);
+      allow create, update: if owns(userId)
+        && validTransaction(request.resource.data, transactionId);
+    }
+
+    match /users/{userId}/budgets/{month} {
+      allow read, delete: if owns(userId);
+      allow create, update: if owns(userId) && validBudget(request.resource.data, month);
+    }
+
+    match /users/{userId}/settings/finance {
+      allow read, delete: if owns(userId);
+      allow create, update: if owns(userId) && validFinance(request.resource.data);
+    }
+
+    // Outros caminhos e subcoleções ficam negados por padrão.
+  }
+}

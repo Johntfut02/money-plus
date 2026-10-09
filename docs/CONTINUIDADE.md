@@ -65,7 +65,7 @@ Ao retomar, consultar a versão atual de `main`, o estado do Git e os commits re
 
 Não apresentar todos os itens do menu como implementados. Contas/recorrências, metas, cartões, a área dedicada de análises, notificações e configurações gerais ainda têm links/controles de funcionalidade futura (`data-soon`). Há cálculos e insights no painel/orçamentos, mas não uma página completa de análises.
 
-A edição foi implementada em 8/10; a aceitação no Firebase real ainda depende do teste de João. Não há integração bancária, pagamento de contas, análise com IA, importação CSV, anexo de comprovantes, PWA/offline ou sincronização contínua em tempo real. Os dados são carregados do servidor ao abrir a página; alterações em outro dispositivo precisam de atualização da página para aparecer.
+A edição foi implementada e validada por João no site publicado em 8/10 (valor de R$ 10 para R$ 15, persistência, totais, categoria, data e cancelamento). Não há integração bancária, pagamento de contas, análise com IA, importação CSV, anexo de comprovantes, PWA/offline ou sincronização contínua em tempo real. Os dados são carregados do servidor ao abrir a página; alterações em outro dispositivo precisam de atualização da página para aparecer.
 
 A proteção atual das regras restringe acesso por UID, mas não valida completamente o formato de cada documento no servidor. A validação de campos e valores no JavaScript não substitui essa validação nas regras. Revisar isso antes de ampliar o uso. Não afirmar que existe auditoria de segurança completa.
 
@@ -170,7 +170,7 @@ node tests/account-flows.test.cjs
 node tests/csv-export.test.mjs
 ```
 
-O teste de contas também cobre edição (preenchimento, restauração, mesmo ID, mudança de tipo/mês, falhas, envio repetido e troca de conta). A implementação de 8/10 mantém a conferência real pendente.
+O teste de contas também cobre edição (preenchimento, restauração, mesmo ID, mudança de tipo/mês, falhas, envio repetido e troca de conta). A implementação de 8/10 foi conferida por João no site; a conferência separada em celular e os testes de regras no servidor continuam pendentes.
 
 O teste de contas simula Firebase e DOM com Node VM: sessão, troca de conta, carregamento com erro, cálculos/mês, idioma, confirmação de salvar/excluir, falha e envio duplicado, orçamentos, saldo com data e caminhos por UID. Não é um teste das regras reais no servidor e não substitui navegador/dispositivos reais.
 
@@ -211,3 +211,15 @@ Para entrevistas, João deve conseguir explicar o problema resolvido, a estrutur
 > Quero continuar o Money+ com base no repositório https://github.com/Johntfut02/money-plus e no documento completo https://raw.githubusercontent.com/Johntfut02/money-plus/main/docs/CONTINUIDADE.md. Leia o documento e o código atual antes de sugerir mudanças. Preserve Vanilla HTML/CSS/JS, Firebase e o visual escuro/dourado. Preciso acelerar a V1 para uso e portfólio: você implementa as partes repetitivas e o JavaScript necessário e depois me ensina usando o código, em português e em etapas pequenas. Primeiro confirme o estado do projeto, o que falta e o acesso real que você tem para editar/publicar. Não trate itens futuros como prontos, não recrie o projeto e não prometa acesso aos arquivos do meu computador sem verificar. Vamos definir o escopo restante da V1 antes de implementar novas funcionalidades.
 
 Se o novo chat não conseguir ler o GitHub, baixar o [ZIP de main](https://github.com/Johntfut02/money-plus/archive/refs/heads/main.zip) e anexá-lo. Esse ZIP inclui o documento, o código, a logo, capturas e testes, mas não configura automaticamente ferramentas de edição/publicação nem transfere o Firebase privado.
+
+
+## 14. Retomada de 8/10/2026: edição aceita e candidata de regras
+
+- Commit `5eb2715`: edição com o formulário existente. Enviado pelo usuário; a publicação desse commit no GitHub Pages terminou com sucesso.
+- João confirmou edição de R$ 10 para R$ 15, permanência após atualizar, ausência de duplicação, diferenças de R$ 5 nos totais, categoria Alimentação/Transporte, ida e volta entre outubro/novembro e cancelamento sem gravar R$ 99. Não foi relatada uma rodada separada no celular.
+- Ver [edicao-transacoes.md](edicao-transacoes.md) para a aceitação registrada.
+- A Parte 2 está preparada em `firestore-v1.rules`, com schema, limites, centavos, datas válidas e caminhos explícitos. `firestore.rules` conserva a referência anterior. A candidata não foi aplicada no Firebase.
+- `firebase.test.json`, `tests/firestore-rules.test.mjs` e o workflow **Firestore rules tests** permitem compilar/testar a candidata em um emulador real com projeto fictício. Java/emulador indisponíveis no ambiente atual; essa suíte não rodou aqui. Testes anteriores da aplicação continuam passando.
+- Enviar o commit preparado para disparar o workflow. Conferir o resultado correspondente ao novo SHA; se falhar, corrigir antes de aplicação. Antes do Console, obter/preservar as regras efetivas e conferir compatibilidade dos dados existentes.
+- A integração GitHub recusou gravações com 403, apesar do campo de permissão de escrita; o terminal do assistente não tinha rede externa. O usuário conseguiu enviar o commit de edição pelo próprio terminal. Não prometer push automático sem revalidar o acesso.
+- Não há deploy automático de regras nem credencial Firebase de administrador. Próximo passo detalhado em [protecao-dados.md](protecao-dados.md).

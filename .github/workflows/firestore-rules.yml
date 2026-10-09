@@ -1,0 +1,43 @@
+name: Firestore rules tests
+
+on:
+  push:
+    paths:
+      - 'firestore-v1.rules'
+      - 'firebase.test.json'
+      - 'tests/firestore-rules.test.mjs'
+      - '.github/workflows/firestore-rules.yml'
+  pull_request:
+    paths:
+      - 'firestore-v1.rules'
+      - 'firebase.test.json'
+      - 'tests/firestore-rules.test.mjs'
+      - '.github/workflows/firestore-rules.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Existing application tests
+        run: |
+          node tests/account-flows.test.cjs
+          node tests/csv-export.test.mjs
+      - name: Compile and exercise candidate Firestore rules
+        run: >-
+          npx --yes firebase-tools@15.33.0 emulators:exec
+          --config firebase.test.json --only firestore
+          --project demo-money-plus-v1
+          "node tests/firestore-rules.test.mjs"

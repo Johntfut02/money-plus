@@ -25,12 +25,12 @@ Implementação de 8 de outubro de 2026. Mantém Vanilla JavaScript, Firebase e 
 
 ## Conferência no site com Firebase real
 
-- [ ] Editar a despesa fictícia **Teste de edição** de R$ 10,00 para R$ 25,00.
-- [ ] Conferir que permanece apenas um lançamento e os dados continuam após atualizar.
-- [ ] Conferir despesas +R$ 15,00 e saldo −R$ 15,00 no mês correspondente, se a data estiver dentro do período do saldo inicial.
-- [ ] Alterar categoria e conferir a distribuição do gasto.
-- [ ] Alterar a data para outro mês e conferir as duas listas.
-- [ ] Cancelar uma edição e conferir que nada mudou.
+- [x] Editar a despesa fictícia **Teste de edição** de R$ 10,00 para R$ 15,00 (valor escolhido por João).
+- [x] Conferir que permanece apenas um lançamento e os dados continuam após atualizar.
+- [x] Conferir despesas +R$ 5,00 e saldo −R$ 5,00 no mês correspondente.
+- [x] Alterar categoria e conferir a distribuição do gasto.
+- [x] Alterar a data para outro mês e conferir as duas listas, sem duplicação, retornando ao mês original.
+- [x] Cancelar uma edição de R$ 15,00 para R$ 99,00 e conferir que nada mudou.
 - [ ] Abrir a mesma conta no celular e conferir o lançamento atualizado.
 
-A aceitação no Firebase real ainda depende dessa conferência. Esta entrega conclui o item de edição; a revisão completa de cálculos e datas da Parte 1 continua pendente. Regras reforçadas, sincronização contínua, recorrências e análises ampliadas pertencem às próximas etapas propostas.
+João confirmou esses testes no site publicado em 8/10/2026. A publicação do commit `5eb2715` foi conferida no GitHub Pages. A edição foi aceita nessa rodada; uma conferência separada no celular ainda não foi relatada. Esta aceitação não equivale a testar todas as datas ou regras do servidor. A candidata da Parte 2 está documentada em [protecao-dados.md](protecao-dados.md).
